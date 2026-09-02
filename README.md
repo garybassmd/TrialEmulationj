@@ -1,11 +1,9 @@
-# TrialEmulationj 1.1
+# TrialEmulationj 1.0
 
 TrialEmulationj is a jamovi module for designing, auditing, estimating, and
 reporting causal analyses that emulate treatment strategies with observational
 data. Version 1.1 keeps design decisions visible and separates workflows whose
 data structures, estimands, and identifying assumptions are not interchangeable.
-
-## What version 1.1 adds
 
 - A target-trial protocol builder with readiness checks and a SHA-256
   specification fingerprint.
