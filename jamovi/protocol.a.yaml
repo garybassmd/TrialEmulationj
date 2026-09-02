@@ -1,0 +1,118 @@
+---
+name: protocol
+title: Target-Trial Protocol Builder
+menuGroup: Causal Inference
+menuTitle: Target-Trial Protocol Builder
+version: '1.1.0'
+jas: '1.2'
+
+description:
+    main: |
+        Defines the target trial before analysis. Produces a structured protocol,
+        readiness checks, and a reproducible specification fingerprint aligned
+        with the core elements of target-trial and TARGET reporting guidance.
+    R:
+        dontrun: true
+
+options:
+    - name: studyTitle
+      title: Study question/title
+      type: String
+      default: ''
+    - name: population
+      title: Target population and setting
+      type: String
+      default: ''
+    - name: eligibility
+      title: Eligibility criteria
+      type: String
+      default: ''
+    - name: strategies
+      title: Treatment strategies and comparator
+      type: String
+      default: ''
+    - name: assignment
+      title: Assignment procedure in target trial
+      type: String
+      default: 'Random assignment to a treatment strategy at time zero'
+    - name: timeZero
+      title: Time zero and alignment rule
+      type: String
+      default: ''
+    - name: gracePeriod
+      title: Grace/decision window and treatment classification
+      type: String
+      default: ''
+    - name: followUp
+      title: Follow-up start, end, and censoring
+      type: String
+      default: ''
+    - name: outcome
+      title: Outcome definition and horizon
+      type: String
+      default: ''
+    - name: competingEvents
+      title: Competing events and handling
+      type: String
+      default: ''
+    - name: causalContrast
+      title: Causal contrast
+      type: List
+      options:
+        - title: Observational analogue of assignment/initiation effect
+          name: initiation
+        - title: Per-protocol effect
+          name: perProtocol
+        - title: Intention-to-treat effect (assignment observed)
+          name: intentionToTreat
+      default: initiation
+    - name: estimand
+      title: Primary estimand
+      type: List
+      options:
+        - title: Average treatment effect - risk/mean difference
+          name: ateDifference
+        - title: Average treatment effect - risk ratio
+          name: ateRatio
+        - title: Survival probability difference
+          name: survivalDifference
+        - title: Restricted mean survival time difference
+          name: rmstDifference
+      default: ateDifference
+    - name: confoundingPlan
+      title: Confounder selection and temporal ordering
+      type: String
+      default: ''
+    - name: analysisPlan
+      title: Estimator, models, and variance plan
+      type: String
+      default: ''
+    - name: missingPlan
+      title: Missing-data plan
+      type: String
+      default: ''
+    - name: sensitivityPlan
+      title: Sensitivity and robustness analyses
+      type: String
+      default: ''
+    - name: acknowledgesAlignment
+      title: Eligibility, assignment, and follow-up are aligned at time zero
+      type: Bool
+      default: false
+    - name: acknowledgesFeasible
+      title: Every eligible person could receive every strategy
+      type: Bool
+      default: false
+    - name: acknowledgesBaseline
+      title: Adjustment variables precede treatment and do not use outcomes
+      type: Bool
+      default: false
+    - name: acknowledgesPositivity
+      title: Structural and empirical positivity will be assessed separately
+      type: Bool
+      default: false
+    - name: showReport
+      title: Copy-ready protocol report
+      type: Bool
+      default: true
+...

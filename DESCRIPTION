@@ -1,0 +1,32 @@
+Package: trialemulationj
+Type: Package
+Title: Causal Trial Emulation for Jamovi
+Version: 1.1.0
+Authors@R: c(
+    person("Gary", "Bass", role = c("aut", "cre"),
+           email = "maintainer@example.org"),
+    person("TrialEmulationj", "Contributors", role = "ctb")
+    )
+Description: Causal inference workflows for jamovi. Supports prospective target
+    trial specification, landmark and sequential target trial emulation,
+    clone-censor-weight survival analyses, augmented inverse probability
+    weighting for point outcomes, doubly robust survival estimation, causal
+    directed acyclic graphs, diagnostic plots, and reproducible analysis
+    fingerprints. Includes safeguards for time-zero alignment, missingness,
+    positivity, separation, clustering, and model diagnostics.
+License: GPL-3
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: jmvcore (>= 2.4.0), R6, TrialEmulation (>= 0.0.5), survivalCCW
+        (>= 0.0.5), checkmate, survival, precmed (>= 1.0.0), ggplot2,
+        brglm2 (>= 1.1.0), dagitty (>= 0.3-4), digest (>= 0.6.39)
+Remotes:
+        Causal-LDA/TrialEmulation@735eea6a0cf227820f1c2af8cea4120635cb268a,
+        Genentech/survivalCCW@9077fe625e076b014ce45a126de25ff5dac3712f
+Suggests: testthat (>= 3.1.0)
+Config/testthat/edition: 3
+NeedsCompilation: no
+Packaged: 2026-09-02 16:18:36 UTC; garybass
+Author: Gary Bass [aut, cre],
+  TrialEmulationj Contributors [ctb]
+Maintainer: Gary Bass <maintainer@example.org>

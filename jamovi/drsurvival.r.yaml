@@ -1,0 +1,59 @@
+---
+name: drSurvival
+title: Doubly Robust Survival Effect
+jrs: '1.1'
+
+items:
+    - name: summary
+      title: Analysis Summary
+      type: Table
+      rows: 9
+      columns:
+        - name: measure
+          title: Measure
+          type: text
+        - name: value
+          title: Value
+          type: text
+
+    - name: effects
+      title: Doubly Robust Survival Effects
+      type: Table
+      columns:
+        - name: estimand
+          title: Estimand
+          type: text
+        - name: estimate
+          title: Estimate
+          type: number
+        - name: se
+          title: Bootstrap SE
+          type: number
+        - name: lower
+          title: Lower 95%
+          type: number
+        - name: upper
+          title: Upper 95%
+          type: number
+        - name: p
+          title: p
+          type: number
+          format: zto,pvalue
+
+    - name: bootstrapPlot
+      title: Bootstrap Treatment-Effect Distributions
+      type: Image
+      visible: (showBootstrapPlot)
+      width: 600
+      height: 400
+      renderFun: .bootstrapPlot
+
+    - name: notes
+      title: Interpretation and Diagnostics
+      type: Preformatted
+
+    - name: syntax
+      title: Reproducible R Syntax
+      type: Preformatted
+      visible: (showSyntax)
+...

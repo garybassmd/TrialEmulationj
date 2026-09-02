@@ -1,0 +1,140 @@
+---
+name: aipw
+title: AIPW and IPTW for Point Outcomes
+jus: '2.0'
+compilerMode: tame
+
+children:
+  - type: VariableSupplier
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Treatment
+        children:
+          - type: VariablesListBox
+            name: treatment
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Outcome
+        children:
+          - type: VariablesListBox
+            name: outcome
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Cluster ID (optional)
+        children:
+          - type: VariablesListBox
+            name: cluster
+            isTarget: true
+            maxItemCount: 1
+
+  - type: VariableSupplier
+    persistentItems: true
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Outcome-model covariates
+        children:
+          - type: VariablesListBox
+            name: outcomeCovs
+            isTarget: true
+      - type: TargetLayoutBox
+        label: Propensity-score covariates
+        children:
+          - type: VariablesListBox
+            name: propensityCovs
+            isTarget: true
+      - type: TargetLayoutBox
+        label: Variables where blank means absence
+        children:
+          - type: VariablesListBox
+            name: absenceVars
+            isTarget: true
+
+  - type: LayoutBox
+    margin: large
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        cell: { column: 0, row: 0 }
+        stretchFactor: 1
+        children:
+          - type: Label
+            label: Outcome and coding
+            children:
+              - type: ComboBox
+                name: outcomeType
+              - type: TextBox
+                name: treatmentPositive
+                format: string
+                width: large
+              - type: TextBox
+                name: outcomePositive
+                format: string
+                width: large
+      - type: LayoutBox
+        cell: { column: 1, row: 0 }
+        stretchFactor: 1
+        children:
+          - type: Label
+            label: Inference
+            children:
+              - type: TextBox
+                name: confidenceLevel
+                suffix: '%'
+                format: number
+              - type: TextBox
+                name: bootstrapSamples
+                format: number
+              - type: TextBox
+                name: randomSeed
+                format: number
+
+  - type: CollapseBox
+    label: Models and positivity
+    collapsed: false
+    children:
+      - type: ComboBox
+        name: outcomeSpecification
+      - type: ComboBox
+        name: outcomeMethod
+      - type: ComboBox
+        name: propensityMethod
+      - type: TextBox
+        name: minPS
+        format: number
+      - type: TextBox
+        name: maxPS
+        format: number
+
+  - type: CollapseBox
+    label: Missing data
+    collapsed: true
+    children:
+      - type: ComboBox
+        name: missingMethod
+      - type: TextBox
+        name: imputations
+        format: number
+        enable: (missingMethod:hotDeckMI)
+
+  - type: CollapseBox
+    label: Output
+    collapsed: false
+    children:
+      - type: ComboBox
+        name: plotMeasure
+      - type: CheckBox
+        name: sensitivityGrid
+      - type: CheckBox
+        name: showOverlapPlot
+      - type: CheckBox
+        name: showBalancePlot
+      - type: CheckBox
+        name: showEffectPlot
+      - type: CheckBox
+        name: showSyntax
+...

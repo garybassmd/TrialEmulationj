@@ -1,0 +1,260 @@
+---
+name: landmarkTrial
+title: Landmark Target-Trial Analysis
+jus: '2.0'
+compilerMode: tame
+
+children:
+  - type: VariableSupplier
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Baseline eligibility (optional)
+        children:
+          - type: VariablesListBox
+            name: eligibility
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Treatment component A / stratum
+        children:
+          - type: VariablesListBox
+            name: treatmentA
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Treatment component B / exposure
+        children:
+          - type: VariablesListBox
+            name: treatmentB
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Recorded failure outcome
+        children:
+          - type: VariablesListBox
+            name: outcome
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Cluster ID (optional)
+        children:
+          - type: VariablesListBox
+            name: cluster
+            isTarget: true
+            maxItemCount: 1
+
+  - type: VariableSupplier
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Failure component 1 (optional)
+        children:
+          - type: VariablesListBox
+            name: failureEvent1
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Failure component 2 (optional)
+        children:
+          - type: VariablesListBox
+            name: failureEvent2
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Competing event (optional)
+        children:
+          - type: VariablesListBox
+            name: competingEvent
+            isTarget: true
+            maxItemCount: 1
+
+  - type: VariableSupplier
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Index/start date-time
+        children:
+          - type: VariablesListBox
+            name: indexTime
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Time to treatment A (optional)
+        children:
+          - type: VariablesListBox
+            name: treatmentATime
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Time to treatment B (optional)
+        children:
+          - type: VariablesListBox
+            name: treatmentBTime
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Time to failure component 1
+        children:
+          - type: VariablesListBox
+            name: failureTime1
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Time to failure component 2
+        children:
+          - type: VariablesListBox
+            name: failureTime2
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Time to discharge/censoring
+        children:
+          - type: VariablesListBox
+            name: dischargeTime
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Time to competing event
+        children:
+          - type: VariablesListBox
+            name: competingTime
+            isTarget: true
+            maxItemCount: 1
+
+  - type: VariableSupplier
+    persistentItems: true
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Baseline adjustment covariates
+        children:
+          - type: VariablesListBox
+            name: covariates
+            isTarget: true
+      - type: TargetLayoutBox
+        label: Variables where blank means absence
+        children:
+          - type: VariablesListBox
+            name: absenceVars
+            isTarget: true
+
+  - type: CollapseBox
+    label: Coding and outcome
+    collapsed: true
+    children:
+      - type: TextBox
+        name: eligibilityPositive
+        format: string
+        width: large
+      - type: TextBox
+        name: treatmentAPositive
+        format: string
+        width: large
+      - type: TextBox
+        name: treatmentBPositive
+        format: string
+        width: large
+      - type: TextBox
+        name: outcomePositive
+        format: string
+        width: large
+      - type: ComboBox
+        name: outcomeSource
+      - type: ComboBox
+        name: competingHandling
+
+  - type: LayoutBox
+    margin: large
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        cell: { column: 0, row: 0 }
+        children:
+          - type: Label
+            label: Timing
+            children:
+              - type: ComboBox
+                name: timeMode
+              - type: ComboBox
+                name: timeUnit
+              - type: TextBox
+                name: window1
+                format: number
+              - type: CheckBox
+                name: runSecondWindow
+              - type: TextBox
+                name: window2
+                format: number
+                enable: (runSecondWindow)
+      - type: LayoutBox
+        cell: { column: 1, row: 0 }
+        children:
+          - type: Label
+            label: Ambiguous timing
+            children:
+              - type: ComboBox
+                name: unknownTreatment
+              - type: ComboBox
+                name: unknownEvent
+
+  - type: CollapseBox
+    label: Contrasts and models
+    collapsed: false
+    children:
+      - type: CheckBox
+        name: runBothStrata
+      - type: ComboBox
+        name: primaryStratum
+      - type: ComboBox
+        name: primaryWindow
+      - type: ComboBox
+        name: effectMeasure
+      - type: ComboBox
+        name: outcomeMethod
+      - type: ComboBox
+        name: propensityMethod
+      - type: TextBox
+        name: minPS
+        format: number
+      - type: TextBox
+        name: maxPS
+        format: number
+
+  - type: CollapseBox
+    label: Missing data and inference
+    collapsed: true
+    children:
+      - type: ComboBox
+        name: missingMethod
+      - type: TextBox
+        name: imputations
+        format: number
+        enable: (missingMethod:hotDeckMI)
+      - type: TextBox
+        name: bootstrapSamples
+        format: number
+      - type: TextBox
+        name: randomSeed
+        format: number
+      - type: TextBox
+        name: confidenceLevel
+        suffix: '%'
+        format: number
+
+  - type: CollapseBox
+    label: Output
+    collapsed: false
+    children:
+      - type: CheckBox
+        name: showFlowPlot
+      - type: CheckBox
+        name: showBalancePlot
+      - type: CheckBox
+        name: showEffectPlot
+      - type: CheckBox
+        name: showSyntax
+...

@@ -1,0 +1,45 @@
+---
+name: causalDAG
+title: Causal DAG and Adjustment Sets
+jrs: '1.1'
+
+items:
+    - name: summary
+      title: Graph Summary
+      type: Table
+      rows: 8
+      columns:
+        - { name: measure, title: Measure, type: text }
+        - { name: value, title: Value, type: text }
+    - name: adjustmentSets
+      title: Minimally Sufficient Adjustment Sets
+      type: Table
+      columns:
+        - { name: number, title: Set, type: integer }
+        - { name: variables, title: Variables, type: text }
+    - name: selected
+      title: Selected-Covariate Check
+      type: Table
+      columns:
+        - { name: variable, title: Variable, type: text }
+        - { name: status, title: Status, type: text }
+        - { name: explanation, title: Explanation, type: text }
+    - name: independencies
+      title: Implied Conditional Independencies
+      type: Preformatted
+      visible: (showIndependencies)
+    - name: dagPlot
+      title: Prespecified Causal DAG
+      type: Image
+      visible: (showPlot)
+      width: 760
+      height: 520
+      renderFun: .dagPlot
+    - name: notes
+      title: Interpretation and Safeguards
+      type: Preformatted
+    - name: syntax
+      title: Validated DAGitty Syntax
+      type: Preformatted
+      visible: (showSyntax)
+...

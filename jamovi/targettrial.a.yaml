@@ -1,0 +1,234 @@
+---
+name: targetTrial
+title: Target Trial Emulation
+menuGroup: Causal Inference
+menuTitle: Target Trial Emulation
+version: '1.0.0'
+jas: '1.2'
+
+description:
+    main: |
+        Emulates a sequence of target trials from longitudinal person-period
+        observational data using the TrialEmulation R package. The analysis
+        estimates marginal intention-to-treat or per-protocol contrasts with a
+        pooled logistic marginal structural model and robust standard errors.
+    R:
+        dontrun: true
+
+options:
+    - name: data
+      type: Data
+      description:
+          R: the longitudinal person-period data as a data frame
+
+    - name: id
+      title: Person ID
+      type: Variable
+      description:
+          R: a string naming the individual identifier variable
+
+    - name: period
+      title: Period
+      type: Variable
+      suggested:
+        - continuous
+      permitted:
+        - numeric
+      description:
+          R: a string naming the non-negative integer visit or period variable
+
+    - name: treatment
+      title: Treatment (0/1)
+      type: Variable
+      description:
+          R: a string naming the binary treatment status variable
+
+    - name: outcome
+      title: Outcome (0/1)
+      type: Variable
+      description:
+          R: a string naming the binary outcome event variable
+
+    - name: eligible
+      title: Eligible (0/1)
+      type: Variable
+      description:
+          R: a string naming the binary trial eligibility variable
+
+    - name: estimand
+      title: Estimand
+      type: List
+      options:
+        - title: Intention-to-treat
+          name: itt
+        - title: Per-protocol
+          name: pp
+      default: itt
+
+    - name: outcomeCovs
+      title: Outcome-model covariates
+      type: Variables
+      default:
+      description:
+          R: baseline covariates used to adjust the marginal structural model
+
+    - name: useCensor
+      title: Adjust for informative censoring
+      type: Bool
+      default: false
+
+    - name: censor
+      title: Censoring event (0/1)
+      type: Variable
+      default:
+      description:
+          R: a string naming the binary censoring indicator
+
+    - name: censorNumCovs
+      title: Censor-weight numerator covariates
+      type: Variables
+      default:
+
+    - name: censorDenCovs
+      title: Censor-weight denominator covariates
+      type: Variables
+      default:
+
+    - name: poolModels
+      title: Pool censoring models
+      type: List
+      options:
+        - title: Automatic
+          name: auto
+        - title: None
+          name: none
+        - title: Numerator only
+          name: numerator
+        - title: Numerator and denominator
+          name: both
+      default: auto
+
+    - name: switchNumCovs
+      title: Adherence-weight numerator covariates
+      type: Variables
+      default:
+
+    - name: switchDenCovs
+      title: Adherence-weight denominator covariates
+      type: Variables
+      default:
+
+    - name: followupModel
+      title: Follow-up time model
+      type: List
+      options:
+        - title: Linear
+          name: linear
+        - title: Quadratic
+          name: quadratic
+        - title: Natural spline (3 df)
+          name: spline3
+      default: quadratic
+
+    - name: trialPeriodModel
+      title: Trial-period model
+      type: List
+      options:
+        - title: None
+          name: none
+        - title: Linear
+          name: linear
+        - title: Quadratic
+          name: quadratic
+      default: linear
+
+    - name: targetPopulation
+      title: Target population
+      type: List
+      options:
+        - title: All baseline person-trials
+          name: all
+        - title: Earliest emulated trial
+          name: earliest
+        - title: Latest emulated trial
+          name: latest
+        - title: Specific trial period
+          name: specific
+      default: all
+
+    - name: targetTrialPeriod
+      title: Target trial period
+      type: Integer
+      min: 0
+      default: 0
+
+    - name: maxFollowUp
+      title: Maximum follow-up period
+      type: Integer
+      min: 0
+      default: 10
+
+    - name: confInt
+      title: 95% confidence intervals
+      type: Bool
+      default: true
+
+    - name: ciSamples
+      title: Simulation draws
+      type: Integer
+      min: 20
+      max: 10000
+      default: 500
+
+    - name: predictionType
+      title: Prediction scale
+      type: List
+      options:
+        - title: Cumulative incidence
+          name: cum_inc
+        - title: Survival probability
+          name: survival
+      default: cum_inc
+
+    - name: truncateWeights
+      title: Truncate extreme analysis weights
+      type: Bool
+      default: true
+
+    - name: truncatePercentile
+      title: Upper percentile
+      type: Number
+      min: 90
+      max: 100
+      default: 99
+
+    - name: pControl
+      title: Control sampling probability
+      type: Number
+      min: 0.01
+      max: 1
+      default: 1
+
+    - name: chunkSize
+      title: Expansion chunk size (persons)
+      type: Integer
+      min: 10
+      max: 1000000
+      default: 500
+
+    - name: seed
+      title: Random seed
+      type: Integer
+      min: 1
+      default: 20240219
+
+    - name: showSyntax
+      title: Reproducible R syntax
+      type: Bool
+      default: true
+
+    - name: showWeightPlot
+      title: Weight distribution plot
+      type: Bool
+      default: true
+...

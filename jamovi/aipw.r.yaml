@@ -1,0 +1,94 @@
+---
+name: aipw
+title: AIPW and IPTW for Point Outcomes
+jrs: '1.1'
+
+items:
+    - name: summary
+      title: Analysis Summary
+      type: Table
+      rows: 14
+      columns:
+        - { name: measure, title: Measure, type: text }
+        - { name: value, title: Value, type: text }
+    - name: effects
+      title: Marginal Treatment Effects
+      type: Table
+      columns:
+        - { name: method, title: Method, type: text }
+        - { name: estimand, title: Estimand, type: text }
+        - { name: estimate, title: Estimate, type: number }
+        - { name: se, title: SE, type: number }
+        - { name: seScale, title: SE scale, type: text }
+        - { name: lower, title: Lower CI, type: number }
+        - { name: upper, title: Upper CI, type: number }
+        - { name: statistic, title: z, type: number }
+        - { name: p, title: p, type: number, format: 'zto,pvalue' }
+        - { name: bootstrapSuccess, title: Successful bootstraps, type: integer }
+    - name: propensity
+      title: Propensity and Weight Diagnostics
+      type: Table
+      columns:
+        - { name: group, title: Treatment group, type: text }
+        - { name: n, title: N, type: integer }
+        - { name: psMin, title: PS min, type: number }
+        - { name: psMedian, title: PS median, type: number }
+        - { name: psMax, title: PS max, type: number }
+        - { name: weightMean, title: IPW mean, type: number }
+        - { name: weightMax, title: IPW max, type: number }
+        - { name: ess, title: Effective sample size, type: number }
+    - name: balance
+      title: Covariate Balance
+      type: Table
+      columns:
+        - { name: covariate, title: Covariate / level, type: text }
+        - { name: unweighted, title: Unweighted SMD, type: number }
+        - { name: weighted, title: IPTW-weighted SMD, type: number }
+        - { name: acceptable, title: '|SMD| < 0.10', type: text }
+    - name: missingAudit
+      title: Missing-Value and Recoding Audit
+      type: Table
+      columns:
+        - { name: variable, title: Variable, type: text }
+        - { name: recoded, title: Values recoded, type: integer }
+        - { name: rule, title: Rule, type: text }
+    - name: sensitivity
+      title: Propensity Truncation Sensitivity
+      type: Table
+      visible: (sensitivityGrid)
+      columns:
+        - { name: limits, title: Propensity limits, type: text }
+        - { name: method, title: Method, type: text }
+        - { name: estimate, title: Difference, type: number }
+        - { name: lower, title: Lower CI, type: number }
+        - { name: upper, title: Upper CI, type: number }
+        - { name: truncated, title: Truncated N, type: integer }
+    - name: overlapPlot
+      title: Propensity-Score Overlap
+      type: Image
+      visible: (showOverlapPlot)
+      width: 650
+      height: 420
+      renderFun: .overlapPlot
+    - name: balancePlot
+      title: Covariate Balance Before and After Weighting
+      type: Image
+      visible: (showBalancePlot)
+      width: 760
+      height: 500
+      renderFun: .balancePlot
+    - name: effectPlot
+      title: AIPW and IPTW Effect Estimates
+      type: Image
+      visible: (showEffectPlot)
+      width: 700
+      height: 360
+      renderFun: .effectPlot
+    - name: notes
+      title: Interpretation and Diagnostics
+      type: Preformatted
+    - name: syntax
+      title: Reproducible R Syntax
+      type: Preformatted
+      visible: (showSyntax)
+...

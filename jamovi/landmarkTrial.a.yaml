@@ -1,0 +1,150 @@
+---
+name: landmarkTrial
+title: Landmark Target-Trial Analysis
+menuGroup: Causal Inference
+menuTitle: Landmark Target Trial
+version: '1.1.0'
+jas: '1.2'
+
+description:
+    main: |
+        Constructs aligned landmark cohorts for two treatment-decision windows,
+        classifies two binary treatment components into four strategies, and
+        estimates within-stratum AIPW and IPTW effects with timing audits,
+        clustered inference, separation handling, and publication-ready plots.
+    R:
+        dontrun: true
+
+options:
+    - { name: data, type: Data }
+    - { name: eligibility, title: Baseline eligibility (optional), type: Variable, default: null }
+    - { name: treatmentA, title: Treatment component A / stratum, type: Variable }
+    - { name: treatmentB, title: Treatment component B / exposure, type: Variable }
+    - { name: outcome, title: Recorded failure outcome, type: Variable, default: null }
+    - { name: failureEvent1, title: Failure component 1 (optional), type: Variable, default: null }
+    - { name: failureEvent2, title: Failure component 2 (optional), type: Variable, default: null }
+    - { name: competingEvent, title: Competing event (optional), type: Variable, default: null }
+    - { name: cluster, title: Cluster ID (optional), type: Variable, default: null }
+    - { name: indexTime, title: Index/start date-time, type: Variable, default: null }
+    - { name: treatmentATime, title: Time to treatment A (optional), type: Variable, default: null }
+    - { name: treatmentBTime, title: Time to treatment B (optional), type: Variable, default: null }
+    - { name: failureTime1, title: Time to failure component 1, type: Variable, default: null }
+    - { name: failureTime2, title: Time to failure component 2, type: Variable, default: null }
+    - { name: dischargeTime, title: Time to discharge/censoring, type: Variable, default: null }
+    - { name: competingTime, title: Time to competing event, type: Variable, default: null }
+    - name: covariates
+      title: Baseline adjustment covariates
+      type: Variables
+      default:
+    - name: absenceVars
+      title: Variables where blank means absence
+      type: Variables
+      default:
+    - { name: eligibilityPositive, title: Eligible level (optional), type: String, default: '' }
+    - { name: treatmentAPositive, title: Treatment A positive level, type: String, default: '' }
+    - { name: treatmentBPositive, title: Treatment B positive level, type: String, default: '' }
+    - { name: outcomePositive, title: Failure level, type: String, default: '' }
+    - name: outcomeSource
+      title: Outcome construction
+      type: List
+      options:
+        - { title: Use recorded failure outcome, name: recorded }
+        - { title: Combine failure components 1 and 2, name: composite }
+      default: recorded
+    - name: competingHandling
+      title: Competing-event handling
+      type: List
+      options:
+        - { title: Treat as no failure, name: noFailure }
+        - { title: Include in composite failure, name: composite }
+        - { title: Exclude as sensitivity analysis, name: exclude }
+      default: noFailure
+    - name: timeMode
+      title: Time variables contain
+      type: List
+      options:
+        - { title: Elapsed numeric time, name: elapsed }
+        - { title: ISO date-time values, name: dateTime }
+      default: elapsed
+    - name: timeUnit
+      title: Analysis time unit
+      type: List
+      options:
+        - { title: Hours, name: hours }
+        - { title: Days, name: days }
+      default: hours
+    - { name: window1, title: Primary decision window, type: Number, min: 0.01, max: 10000, default: 24 }
+    - { name: runSecondWindow, title: Run second decision window, type: Bool, default: true }
+    - { name: window2, title: Second decision window, type: Number, min: 0.01, max: 10000, default: 48 }
+    - name: unknownTreatment
+      title: Treatment recorded but timing unknown
+      type: List
+      options:
+        - { title: Exclude from that landmark cohort, name: exclude }
+        - { title: Assume treatment occurred within window, name: assumeRecorded }
+      default: exclude
+    - name: unknownEvent
+      title: Failure recorded but timing unknown
+      type: List
+      options:
+        - { title: Exclude from that landmark cohort, name: exclude }
+        - { title: Retain using recorded outcome, name: retain }
+      default: exclude
+    - { name: runBothStrata, title: Analyze treatment A present and absent strata, type: Bool, default: true }
+    - name: primaryStratum
+      title: Single/primary stratum
+      type: List
+      options:
+        - { title: Treatment A present, name: present }
+        - { title: Treatment A absent, name: absent }
+      default: present
+    - name: primaryWindow
+      title: Window used for balance plot
+      type: List
+      options:
+        - { title: Primary window, name: first }
+        - { title: Second window, name: second }
+      default: first
+    - name: missingMethod
+      title: Missing baseline covariates
+      type: List
+      options:
+        - { title: Stop and report, name: fail }
+        - { title: Complete-case analysis, name: completeCases }
+        - { title: Multiple hot-deck imputation, name: hotDeckMI }
+      default: fail
+    - { name: imputations, title: Number of imputations, type: Integer, min: 2, max: 100, default: 20 }
+    - name: outcomeMethod
+      title: Binary outcome model
+      type: List
+      options:
+        - { title: Automatic Firth fallback, name: auto }
+        - { title: Maximum likelihood, name: maximumLikelihood }
+        - { title: Always use Firth, name: firth }
+      default: auto
+    - name: propensityMethod
+      title: Propensity model
+      type: List
+      options:
+        - { title: Automatic Firth fallback, name: auto }
+        - { title: Maximum likelihood, name: maximumLikelihood }
+        - { title: Always use Firth, name: firth }
+      default: auto
+    - { name: minPS, title: Minimum propensity score, type: Number, min: 0.0001, max: 0.49, default: 0.01 }
+    - { name: maxPS, title: Maximum propensity score, type: Number, min: 0.51, max: 0.9999, default: 0.99 }
+    - { name: bootstrapSamples, title: Bootstrap samples (0 disables), type: Integer, min: 0, max: 10000, default: 0 }
+    - { name: randomSeed, title: Random seed, type: Integer, min: 1, max: 2147483646, default: 24680 }
+    - { name: confidenceLevel, title: Confidence level, type: Number, min: 80, max: 99.9, default: 95 }
+    - name: effectMeasure
+      title: Primary effect measure
+      type: List
+      options:
+        - { title: Risk difference, name: riskDifference }
+        - { title: Risk ratio, name: riskRatio }
+        - { title: Odds ratio, name: oddsRatio }
+      default: riskDifference
+    - { name: showFlowPlot, title: Cohort flow plot, type: Bool, default: true }
+    - { name: showBalancePlot, title: Covariate balance plot, type: Bool, default: true }
+    - { name: showEffectPlot, title: Combined effect plot, type: Bool, default: true }
+    - { name: showSyntax, title: Reproducible specification, type: Bool, default: true }
+...

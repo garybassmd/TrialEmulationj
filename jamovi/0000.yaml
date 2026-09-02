@@ -1,0 +1,93 @@
+---
+title: Causal Trial Emulation
+name: trialemulationj
+version: 1.1.0
+jms: '1.0'
+authors:
+  - Gary Bass
+  - TrialEmulationj contributors
+maintainer: Gary Bass
+description: >
+  Protocol-led target trial emulation, landmark and clone-censor-weighted
+  analyses, augmented inverse probability weighting, doubly robust survival,
+  causal DAGs, diagnostics, and publication-ready plots for observational data.
+analyses:
+  - title: Target-Trial Protocol Builder
+    name: protocol
+    ns: trialemulationj
+    menuGroup: Causal Inference
+    menuTitle: Target-Trial Protocol Builder
+    description: |
+      Defines the target trial before analysis. Produces a structured protocol,
+      readiness checks, and a reproducible specification fingerprint aligned
+      with the core elements of target-trial and TARGET reporting guidance.
+    category: analyses
+  - title: Causal DAG and Adjustment Sets
+    name: causalDAG
+    ns: trialemulationj
+    menuGroup: Causal Inference
+    menuTitle: Causal DAG
+    description: |
+      Validates a prespecified causal directed acyclic graph, identifies
+      minimally sufficient adjustment sets, checks a selected model set, and
+      produces a publication-ready static graph. The analysis does not learn
+      causal structure from the observed data.
+    category: analyses
+  - title: Landmark Target-Trial Analysis
+    name: landmarkTrial
+    ns: trialemulationj
+    menuGroup: Causal Inference
+    menuTitle: Landmark Target Trial
+    description: |
+      Constructs aligned landmark cohorts for two treatment-decision windows,
+      classifies two binary treatment components into four strategies, and
+      estimates within-stratum AIPW and IPTW effects with timing audits,
+      clustered inference, separation handling, and publication-ready plots.
+    category: analyses
+  - title: Target Trial Emulation
+    name: targetTrial
+    ns: trialemulationj
+    menuGroup: Causal Inference
+    menuTitle: Target Trial Emulation
+    description: |
+      Emulates a sequence of target trials from longitudinal person-period
+      observational data using the TrialEmulation R package. The analysis
+      estimates marginal intention-to-treat or per-protocol contrasts with a
+      pooled logistic marginal structural model and robust standard errors.
+    category: analyses
+  - title: Clone-Censor-Weight Survival Analysis
+    name: cloneCensor
+    ns: trialemulationj
+    menuGroup: Causal Inference
+    menuTitle: Clone-Censor Weighting
+    description: |
+      Emulates sustained exposure strategies by cloning each person,
+      artificially censoring clones at strategy deviation, and weighting for
+      the induced censoring. Input data must contain one row per person.
+    category: analyses
+  - title: AIPW and IPTW for Point Outcomes
+    name: aipw
+    ns: trialemulationj
+    menuGroup: Causal Inference
+    menuTitle: AIPW / IPTW (Point Outcomes)
+    description: |
+      Estimates marginal treatment effects using augmented inverse probability
+      weighting (AIPW) and Hajek inverse probability weighting (IPTW). Supports
+      clustered influence-function inference, whole-cluster bootstrap confidence
+      intervals, Firth bias-reduced logistic models, explicit missing-value
+      policies, and publication-ready diagnostic plots.
+    category: analyses
+  - title: Doubly Robust Survival Effect
+    name: drSurvival
+    ns: trialemulationj
+    menuGroup: Causal Inference
+    menuTitle: Doubly Robust Survival
+    description: |
+      Estimates a doubly robust treatment effect for one-row-per-person
+      survival data. The primary estimand is the ratio of restricted mean time
+      lost under treatment versus no treatment at a specified horizon.
+    category: analyses
+usesNative: true
+minApp: 1.0.8
+
+...

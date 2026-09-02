@@ -1,0 +1,9 @@
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+.DS_Store
+*.jmo
+*.tar.gz
+*.Rcheck/
+build/

@@ -1,0 +1,90 @@
+---
+name: landmarkTrial
+title: Landmark Target-Trial Analysis
+jrs: '1.1'
+
+items:
+    - name: summary
+      title: Analysis Summary
+      type: Table
+      rows: 12
+      columns:
+        - { name: measure, title: Measure, type: text }
+        - { name: value, title: Value, type: text }
+    - name: flow
+      title: Landmark Cohort Flow
+      type: Table
+      columns:
+        - { name: window, title: Window, type: text }
+        - { name: step, title: Cohort step, type: text }
+        - { name: n, title: Remaining N, type: integer }
+        - { name: excluded, title: Excluded at step, type: integer }
+    - name: timeline
+      title: Timeline and Classification Audit
+      type: Table
+      columns:
+        - { name: variable, title: Variable, type: text }
+        - { name: issue, title: Issue, type: text }
+        - { name: n, title: N, type: integer }
+        - { name: action, title: Analysis action, type: text }
+    - name: strategies
+      title: Four-Strategy Classification
+      type: Table
+      columns:
+        - { name: window, title: Window, type: text }
+        - { name: treatmentA, title: Treatment A, type: text }
+        - { name: treatmentB, title: Treatment B, type: text }
+        - { name: n, title: N, type: integer }
+        - { name: failures, title: Failures, type: integer }
+    - name: effects
+      title: Landmark Causal Effects
+      type: Table
+      columns:
+        - { name: window, title: Window, type: text }
+        - { name: stratum, title: Stratum, type: text }
+        - { name: method, title: Method, type: text }
+        - { name: n, title: N, type: integer }
+        - { name: treated, title: Exposed N, type: integer }
+        - { name: failures, title: Failures, type: integer }
+        - { name: estimate, title: Estimate, type: number }
+        - { name: lower, title: Lower CI, type: number }
+        - { name: upper, title: Upper CI, type: number }
+        - { name: outcomeModel, title: Outcome model, type: text }
+        - { name: bootstrapSuccess, title: Successful bootstraps, type: integer }
+    - name: balance
+      title: Primary-Specification Covariate Balance
+      type: Table
+      columns:
+        - { name: covariate, title: Covariate / level, type: text }
+        - { name: unweighted, title: Unweighted SMD, type: number }
+        - { name: weighted, title: IPTW-weighted SMD, type: number }
+        - { name: acceptable, title: '|SMD| < 0.10', type: text }
+    - name: flowPlot
+      title: Landmark Cohort Retention
+      type: Image
+      visible: (showFlowPlot)
+      width: 720
+      height: 420
+      renderFun: .flowPlot
+    - name: balancePlot
+      title: Covariate Balance Before and After Weighting
+      type: Image
+      visible: (showBalancePlot)
+      width: 760
+      height: 500
+      renderFun: .balancePlot
+    - name: effectPlot
+      title: Landmark Effect Estimates
+      type: Image
+      visible: (showEffectPlot)
+      width: 820
+      height: 500
+      renderFun: .effectPlot
+    - name: notes
+      title: Interpretation and Diagnostics
+      type: Preformatted
+    - name: syntax
+      title: Reproducible Specification
+      type: Preformatted
+      visible: (showSyntax)
+...

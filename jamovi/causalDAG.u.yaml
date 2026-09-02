@@ -1,0 +1,58 @@
+---
+name: causalDAG
+title: Causal DAG and Adjustment Sets
+jus: '2.0'
+compilerMode: tame
+
+children:
+  - type: VariableSupplier
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Exposure/treatment node
+        children:
+          - type: VariablesListBox
+            name: exposure
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Outcome node
+        children:
+          - type: VariablesListBox
+            name: outcome
+            isTarget: true
+            maxItemCount: 1
+  - type: VariableSupplier
+    persistentItems: true
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Covariates selected for adjustment
+        children:
+          - type: VariablesListBox
+            name: selectedAdjusters
+            isTarget: true
+  - type: Label
+    label: Prespecified graph
+    children:
+      - type: TextBox
+        name: dagText
+        format: string
+        width: largest
+      - type: ComboBox
+        name: effect
+      - type: TextBox
+        name: maxSets
+        format: number
+  - type: CollapseBox
+    label: Output
+    collapsed: false
+    children:
+      - type: CheckBox
+        name: showIndependencies
+      - type: CheckBox
+        name: showPlot
+      - type: CheckBox
+        name: showSyntax
+...

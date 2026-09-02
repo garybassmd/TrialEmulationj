@@ -1,0 +1,132 @@
+---
+name: drSurvival
+title: Doubly Robust Survival Effect
+menuGroup: Causal Inference
+menuTitle: Doubly Robust Survival
+version: '1.0.0'
+jas: '1.2'
+
+description:
+    main: |
+        Estimates a doubly robust treatment effect for one-row-per-person
+        survival data. The primary estimand is the ratio of restricted mean time
+        lost under treatment versus no treatment at a specified horizon.
+    R:
+        dontrun: true
+
+options:
+    - name: data
+      type: Data
+
+    - name: time
+      title: Follow-up time
+      type: Variable
+      suggested: [continuous]
+      permitted: [numeric]
+
+    - name: event
+      title: Event (0/1)
+      type: Variable
+
+    - name: treatment
+      title: Treatment (0/1)
+      type: Variable
+
+    - name: followupTime
+      title: Potential censoring time (optional)
+      type: Variable
+      default:
+      suggested: [continuous]
+      permitted: [numeric]
+
+    - name: outcomeCovs
+      title: Outcome-model covariates
+      type: Variables
+      default:
+
+    - name: propensityCovs
+      title: Propensity-score covariates
+      type: Variables
+      default:
+
+    - name: censorCovs
+      title: Censoring-model covariates
+      type: Variables
+      default:
+
+    - name: horizon
+      title: RMTL horizon
+      type: Number
+      min: 0.000001
+      default: 365
+
+    - name: psMethod
+      title: Propensity-score method
+      type: List
+      options:
+        - title: Logistic regression
+          name: glm
+        - title: LASSO logistic regression
+          name: lasso
+      default: glm
+
+    - name: censorMethod
+      title: Censoring model
+      type: List
+      options:
+        - title: Cox/Breslow
+          name: breslow
+        - title: Exponential AFT
+          name: aft_exp
+        - title: Weibull AFT
+          name: aft_weibull
+        - title: Log-normal AFT
+          name: aft_lognormal
+        - title: Log-logistic AFT
+          name: aft_loglogistic
+      default: breslow
+
+    - name: minPS
+      title: Minimum propensity score
+      type: Number
+      min: 0.0001
+      max: 0.49
+      default: 0.01
+
+    - name: maxPS
+      title: Maximum propensity score
+      type: Number
+      min: 0.51
+      max: 0.9999
+      default: 0.99
+
+    - name: minCensorSurvival
+      title: Minimum censoring survival
+      type: Number
+      min: 0.0001
+      max: 0.49
+      default: 0.025
+
+    - name: bootstrapSamples
+      title: Bootstrap samples
+      type: Integer
+      min: 20
+      max: 5000
+      default: 500
+
+    - name: seed
+      title: Random seed
+      type: Integer
+      min: 1
+      default: 20240219
+
+    - name: showBootstrapPlot
+      title: Bootstrap distribution plot
+      type: Bool
+      default: true
+
+    - name: showSyntax
+      title: Reproducible R syntax
+      type: Bool
+      default: true
+...

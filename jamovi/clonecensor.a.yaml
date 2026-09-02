@@ -1,0 +1,108 @@
+---
+name: cloneCensor
+title: Clone-Censor-Weight Survival Analysis
+menuGroup: Causal Inference
+menuTitle: Clone-Censor Weighting
+version: '1.0.0'
+jas: '1.2'
+
+description:
+    main: |
+        Emulates sustained exposure strategies by cloning each person,
+        artificially censoring clones at strategy deviation, and weighting for
+        the induced censoring. Input data must contain one row per person.
+    R:
+        dontrun: true
+
+options:
+    - name: data
+      type: Data
+
+    - name: id
+      title: Person ID
+      type: Variable
+
+    - name: event
+      title: Event (0/1)
+      type: Variable
+
+    - name: timeToEvent
+      title: Time to event or censoring
+      type: Variable
+      suggested: [continuous]
+      permitted: [numeric]
+
+    - name: exposure
+      title: Exposure during grace period (0/1)
+      type: Variable
+
+    - name: timeToExposure
+      title: Time to exposure
+      type: Variable
+      suggested: [continuous]
+      permitted: [numeric]
+
+    - name: weightCovs
+      title: Censor-weight covariates
+      type: Variables
+      default:
+
+    - name: gracePeriod
+      title: Grace-period end
+      type: Number
+      min: 0.000001
+      default: 100
+
+    - name: horizon
+      title: Effect-estimation horizon
+      type: Number
+      min: 0.000001
+      default: 365
+
+    - name: winsorize
+      title: Winsorize clone-censor weights
+      type: Bool
+      default: true
+
+    - name: lowerPercentile
+      title: Lower percentile
+      type: Number
+      min: 0
+      max: 49
+      default: 1
+
+    - name: upperPercentile
+      title: Upper percentile
+      type: Number
+      min: 51
+      max: 100
+      default: 99
+
+    - name: winsorizeByClone
+      title: Winsorize separately by strategy
+      type: Bool
+      default: false
+
+    - name: bootstrapSamples
+      title: Bootstrap samples
+      type: Integer
+      min: 20
+      max: 5000
+      default: 500
+
+    - name: seed
+      title: Random seed
+      type: Integer
+      min: 1
+      default: 20240219
+
+    - name: showWeightPlot
+      title: Weight distribution plot
+      type: Bool
+      default: true
+
+    - name: showSyntax
+      title: Reproducible R syntax
+      type: Bool
+      default: true
+...

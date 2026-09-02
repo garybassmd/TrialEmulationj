@@ -1,0 +1,98 @@
+---
+name: cloneCensor
+title: Clone-Censor-Weight Survival Analysis
+jrs: '1.1'
+
+items:
+    - name: summary
+      title: Analysis Summary
+      type: Table
+      rows: 10
+      columns:
+        - name: measure
+          title: Measure
+          type: text
+        - name: value
+          title: Value
+          type: text
+
+    - name: effects
+      title: Clone-Censor-Weighted Effects
+      type: Table
+      columns:
+        - name: estimand
+          title: Estimand
+          type: text
+        - name: estimate
+          title: Estimate
+          type: number
+        - name: se
+          title: Bootstrap SE
+          type: number
+        - name: lower
+          title: Lower 95%
+          type: number
+        - name: upper
+          title: Upper 95%
+          type: number
+        - name: p
+          title: p
+          type: number
+          format: zto,pvalue
+
+    - name: survivalPlot
+      title: Weighted Survival Curves
+      type: Image
+      width: 600
+      height: 420
+      renderFun: .survivalPlot
+      clearWith:
+        - horizon
+        - winsorize
+        - lowerPercentile
+        - upperPercentile
+        - winsorizeByClone
+
+    - name: weightSummary
+      title: Clone-Censor Weight Diagnostics
+      type: Table
+      columns:
+        - name: strategy
+          title: Strategy
+          type: text
+        - name: min
+          title: Min
+          type: number
+        - name: p1
+          title: P1
+          type: number
+        - name: median
+          title: Median
+          type: number
+        - name: mean
+          title: Mean
+          type: number
+        - name: p99
+          title: P99
+          type: number
+        - name: max
+          title: Max
+          type: number
+
+    - name: weightPlot
+      title: Clone-Censor Weight Distribution
+      type: Image
+      visible: (showWeightPlot)
+      width: 600
+      height: 380
+      renderFun: .weightPlot
+
+    - name: notes
+      title: Interpretation and Diagnostics
+      type: Preformatted
+
+    - name: syntax
+      title: Reproducible R Syntax
+      type: Preformatted
+      visible: (showSyntax)
+...

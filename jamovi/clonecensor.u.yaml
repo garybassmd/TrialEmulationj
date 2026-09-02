@@ -1,0 +1,117 @@
+---
+name: cloneCensor
+title: Clone-Censor-Weight Survival Analysis
+jus: '2.0'
+compilerMode: tame
+
+children:
+  - type: VariableSupplier
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Person ID
+        children:
+          - type: VariablesListBox
+            name: id
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Event (0/1)
+        children:
+          - type: VariablesListBox
+            name: event
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Time to event or censoring
+        children:
+          - type: VariablesListBox
+            name: timeToEvent
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Exposure during grace period (0/1)
+        children:
+          - type: VariablesListBox
+            name: exposure
+            isTarget: true
+            maxItemCount: 1
+      - type: TargetLayoutBox
+        label: Time to exposure
+        children:
+          - type: VariablesListBox
+            name: timeToExposure
+            isTarget: true
+            maxItemCount: 1
+
+  - type: VariableSupplier
+    persistentItems: true
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Baseline covariates for censor weights
+        children:
+          - type: VariablesListBox
+            name: weightCovs
+            isTarget: true
+
+  - type: LayoutBox
+    margin: large
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        cell: { column: 0, row: 0 }
+        stretchFactor: 1
+        children:
+          - type: Label
+            label: Strategy definition
+            children:
+              - type: TextBox
+                name: gracePeriod
+                format: number
+              - type: TextBox
+                name: horizon
+                format: number
+          - type: Label
+            label: Inference
+            children:
+              - type: TextBox
+                name: bootstrapSamples
+                format: number
+              - type: TextBox
+                name: seed
+                format: number
+      - type: LayoutBox
+        cell: { column: 1, row: 0 }
+        stretchFactor: 1
+        children:
+          - type: Label
+            label: Output
+            children:
+              - type: CheckBox
+                name: showWeightPlot
+              - type: CheckBox
+                name: showSyntax
+
+  - type: CollapseBox
+    label: Weight handling
+    collapsed: true
+    children:
+      - type: CheckBox
+        name: winsorize
+        children:
+          - type: TextBox
+            name: lowerPercentile
+            suffix: '%'
+            format: number
+            enable: (winsorize)
+          - type: TextBox
+            name: upperPercentile
+            suffix: '%'
+            format: number
+            enable: (winsorize)
+          - type: CheckBox
+            name: winsorizeByClone
+            enable: (winsorize)
+...

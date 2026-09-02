@@ -1,0 +1,166 @@
+---
+name: targetTrial
+title: Target Trial Emulation
+jrs: '1.1'
+
+items:
+    - name: inputSummary
+      title: Input Data Summary
+      type: Table
+      rows: 7
+      columns:
+        - name: measure
+          title: Measure
+          type: text
+        - name: value
+          title: Value
+          type: text
+
+    - name: analysisSummary
+      title: Emulated Trial Summary
+      type: Table
+      rows: 8
+      columns:
+        - name: measure
+          title: Measure
+          type: text
+        - name: value
+          title: Value
+          type: text
+
+    - name: coefficients
+      title: Marginal Structural Model Coefficients
+      type: Table
+      columns:
+        - name: term
+          title: Term
+          type: text
+        - name: estimate
+          title: Estimate
+          type: number
+        - name: se
+          title: Robust SE
+          type: number
+        - name: statistic
+          title: z
+          type: number
+        - name: p
+          title: p
+          type: number
+          format: zto,pvalue
+        - name: lower
+          title: Lower 95%
+          type: number
+        - name: upper
+          title: Upper 95%
+          type: number
+
+    - name: marginal
+      title: Marginal Predictions and Treatment Contrast
+      type: Table
+      columns:
+        - name: time
+          title: Follow-up
+          type: integer
+        - name: untreated
+          title: No treatment
+          type: number
+          format: zto,pc
+        - name: treated
+          title: Treatment
+          type: number
+          format: zto,pc
+        - name: difference
+          title: Difference
+          type: number
+          format: zto,pc
+        - name: lower
+          title: Lower 95%
+          type: number
+          format: zto,pc
+          visible: (confInt)
+        - name: upper
+          title: Upper 95%
+          type: number
+          format: zto,pc
+          visible: (confInt)
+
+    - name: riskPlot
+      title: Marginal Curves
+      type: Image
+      width: 600
+      height: 420
+      renderFun: .riskPlot
+      clearWith:
+        - predictionType
+        - maxFollowUp
+        - targetPopulation
+        - targetTrialPeriod
+        - confInt
+
+    - name: differencePlot
+      title: Marginal Treatment Contrast
+      type: Image
+      width: 600
+      height: 420
+      renderFun: .differencePlot
+      clearWith:
+        - predictionType
+        - maxFollowUp
+        - targetPopulation
+        - targetTrialPeriod
+        - confInt
+
+    - name: weightSummary
+      title: Analysis Weight Diagnostics
+      type: Table
+      columns:
+        - name: weight
+          title: Weight
+          type: text
+        - name: min
+          title: Min
+          type: number
+        - name: p1
+          title: P1
+          type: number
+        - name: p5
+          title: P5
+          type: number
+        - name: median
+          title: Median
+          type: number
+        - name: mean
+          title: Mean
+          type: number
+        - name: p95
+          title: P95
+          type: number
+        - name: p99
+          title: P99
+          type: number
+        - name: max
+          title: Max
+          type: number
+
+    - name: weightPlot
+      title: Final Analysis Weight Distribution
+      type: Image
+      visible: (showWeightPlot)
+      width: 600
+      height: 380
+      renderFun: .weightPlot
+      clearWith:
+        - truncateWeights
+        - truncatePercentile
+        - pControl
+
+    - name: notes
+      title: Interpretation and Diagnostics
+      type: Preformatted
+
+    - name: syntax
+      title: Reproducible R Syntax
+      type: Preformatted
+      visible: (showSyntax)
+...

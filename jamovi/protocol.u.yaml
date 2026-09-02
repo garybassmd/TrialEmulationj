@@ -1,0 +1,95 @@
+---
+name: protocol
+title: Target-Trial Protocol Builder
+jus: '2.0'
+compilerMode: tame
+
+children:
+  - type: Label
+    label: Question and population
+    children:
+      - type: TextBox
+        name: studyTitle
+        format: string
+        width: largest
+      - type: TextBox
+        name: population
+        format: string
+        width: largest
+      - type: TextBox
+        name: eligibility
+        format: string
+        width: largest
+  - type: Label
+    label: Strategies and estimand
+    children:
+      - type: TextBox
+        name: strategies
+        format: string
+        width: largest
+      - type: TextBox
+        name: assignment
+        format: string
+        width: largest
+      - type: ComboBox
+        name: causalContrast
+      - type: ComboBox
+        name: estimand
+  - type: Label
+    label: Time and outcomes
+    children:
+      - type: TextBox
+        name: timeZero
+        format: string
+        width: largest
+      - type: TextBox
+        name: gracePeriod
+        format: string
+        width: largest
+      - type: TextBox
+        name: followUp
+        format: string
+        width: largest
+      - type: TextBox
+        name: outcome
+        format: string
+        width: largest
+      - type: TextBox
+        name: competingEvents
+        format: string
+        width: largest
+  - type: CollapseBox
+    label: Analysis and sensitivity plan
+    collapsed: false
+    children:
+      - type: TextBox
+        name: confoundingPlan
+        format: string
+        width: largest
+      - type: TextBox
+        name: analysisPlan
+        format: string
+        width: largest
+      - type: TextBox
+        name: missingPlan
+        format: string
+        width: largest
+      - type: TextBox
+        name: sensitivityPlan
+        format: string
+        width: largest
+  - type: CollapseBox
+    label: Design acknowledgements
+    collapsed: false
+    children:
+      - type: CheckBox
+        name: acknowledgesAlignment
+      - type: CheckBox
+        name: acknowledgesFeasible
+      - type: CheckBox
+        name: acknowledgesBaseline
+      - type: CheckBox
+        name: acknowledgesPositivity
+      - type: CheckBox
+        name: showReport
+...

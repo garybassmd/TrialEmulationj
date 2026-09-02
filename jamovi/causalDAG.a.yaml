@@ -1,0 +1,62 @@
+---
+name: causalDAG
+title: Causal DAG and Adjustment Sets
+menuGroup: Causal Inference
+menuTitle: Causal DAG
+version: '1.1.0'
+jas: '1.2'
+
+description:
+    main: |
+        Validates a prespecified causal directed acyclic graph, identifies
+        minimally sufficient adjustment sets, checks a selected model set, and
+        produces a publication-ready static graph. The analysis does not learn
+        causal structure from the observed data.
+    R:
+        dontrun: true
+
+options:
+    - name: data
+      type: Data
+    - name: exposure
+      title: Exposure/treatment node
+      type: Variable
+    - name: outcome
+      title: Outcome node
+      type: Variable
+    - name: selectedAdjusters
+      title: Covariates selected for adjustment
+      type: Variables
+      default:
+    - name: dagText
+      title: DAGitty syntax or semicolon-separated arrows
+      type: String
+      default: ''
+    - name: effect
+      title: Effect type
+      type: List
+      options:
+        - title: Total effect
+          name: total
+        - title: Direct effect
+          name: direct
+      default: total
+    - name: maxSets
+      title: Maximum adjustment sets shown
+      type: Integer
+      min: 1
+      max: 100
+      default: 20
+    - name: showIndependencies
+      title: Implied conditional independencies
+      type: Bool
+      default: true
+    - name: showPlot
+      title: DAG plot
+      type: Bool
+      default: true
+    - name: showSyntax
+      title: Validated DAGitty syntax
+      type: Bool
+      default: true
+...

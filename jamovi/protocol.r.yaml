@@ -1,0 +1,27 @@
+---
+name: protocol
+title: Target-Trial Protocol Builder
+jrs: '1.1'
+
+items:
+    - name: specification
+      title: Target-Trial Specification
+      type: Table
+      columns:
+        - { name: component, title: Component, type: text }
+        - { name: specification, title: Prespecified protocol, type: text }
+    - name: readiness
+      title: Design Readiness Checks
+      type: Table
+      columns:
+        - { name: check, title: Check, type: text }
+        - { name: status, title: Status, type: text }
+        - { name: action, title: Required action, type: text }
+    - name: report
+      title: Copy-Ready Protocol
+      type: Preformatted
+      visible: (showReport)
+    - name: fingerprint
+      title: Reproducibility Record
+      type: Preformatted
+...

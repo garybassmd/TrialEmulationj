@@ -1,0 +1,170 @@
+---
+name: aipw
+title: AIPW and IPTW for Point Outcomes
+menuGroup: Causal Inference
+menuTitle: AIPW / IPTW (Point Outcomes)
+version: '1.1.0'
+jas: '1.2'
+
+description:
+    main: |
+        Estimates marginal treatment effects using augmented inverse probability
+        weighting (AIPW) and Hajek inverse probability weighting (IPTW). Supports
+        clustered influence-function inference, whole-cluster bootstrap confidence
+        intervals, Firth bias-reduced logistic models, explicit missing-value
+        policies, and publication-ready diagnostic plots.
+    R:
+        dontrun: true
+
+options:
+    - name: data
+      type: Data
+    - name: treatment
+      title: Treatment
+      type: Variable
+    - name: outcome
+      title: Outcome
+      type: Variable
+    - name: treatmentPositive
+      title: Treated/exposed level (optional)
+      type: String
+      default: ''
+    - name: outcomePositive
+      title: Event level (optional)
+      type: String
+      default: ''
+    - name: outcomeType
+      title: Outcome type
+      type: List
+      options:
+        - title: Binary
+          name: binary
+        - title: Continuous
+          name: continuous
+      default: binary
+    - name: outcomeCovs
+      title: Outcome-model covariates
+      type: Variables
+      default:
+    - name: propensityCovs
+      title: Propensity-score covariates
+      type: Variables
+      default:
+    - name: cluster
+      title: Cluster ID (optional)
+      type: Variable
+      default: null
+    - name: absenceVars
+      title: Variables where blank means absence
+      type: Variables
+      default:
+    - name: missingMethod
+      title: Remaining missing covariates
+      type: List
+      options:
+        - title: Stop and report
+          name: fail
+        - title: Complete-case analysis
+          name: completeCases
+        - title: Multiple hot-deck imputation
+          name: hotDeckMI
+      default: fail
+    - name: imputations
+      title: Number of imputations
+      type: Integer
+      min: 2
+      max: 100
+      default: 20
+    - name: randomSeed
+      title: Random seed
+      type: Integer
+      min: 1
+      max: 2147483646
+      default: 24680
+    - name: outcomeSpecification
+      title: Outcome-model specification
+      type: List
+      options:
+        - title: Pooled with treatment term
+          name: pooled
+        - title: Separate model in each arm
+          name: armSpecific
+      default: pooled
+    - name: outcomeMethod
+      title: Binary outcome model
+      type: List
+      options:
+        - title: Automatic Firth fallback
+          name: auto
+        - title: Maximum likelihood
+          name: maximumLikelihood
+        - title: Always use Firth
+          name: firth
+      default: auto
+    - name: propensityMethod
+      title: Propensity model
+      type: List
+      options:
+        - title: Automatic Firth fallback
+          name: auto
+        - title: Maximum likelihood
+          name: maximumLikelihood
+        - title: Always use Firth
+          name: firth
+      default: auto
+    - name: minPS
+      title: Minimum propensity score
+      type: Number
+      min: 0.0001
+      max: 0.49
+      default: 0.01
+    - name: maxPS
+      title: Maximum propensity score
+      type: Number
+      min: 0.51
+      max: 0.9999
+      default: 0.99
+    - name: bootstrapSamples
+      title: Bootstrap samples (0 disables)
+      type: Integer
+      min: 0
+      max: 10000
+      default: 0
+    - name: confidenceLevel
+      title: Confidence level
+      type: Number
+      min: 80
+      max: 99.9
+      default: 95
+    - name: plotMeasure
+      title: Effect shown in plot
+      type: List
+      options:
+        - title: Risk/mean difference
+          name: difference
+        - title: Risk ratio
+          name: riskRatio
+        - title: Odds ratio
+          name: oddsRatio
+      default: difference
+    - name: sensitivityGrid
+      title: Propensity truncation sensitivity grid
+      type: Bool
+      default: true
+    - name: showOverlapPlot
+      title: Propensity overlap plot
+      type: Bool
+      default: true
+    - name: showBalancePlot
+      title: Covariate balance plot
+      type: Bool
+      default: true
+    - name: showEffectPlot
+      title: Effect plot
+      type: Bool
+      default: true
+    - name: showSyntax
+      title: Reproducible R syntax
+      type: Bool
+      default: true
+...
