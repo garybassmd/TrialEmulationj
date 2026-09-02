@@ -25,10 +25,10 @@ landmarkTrialClass <- R6::R6Class(
             unique(values[!is.na(values) & nzchar(values)])
         },
 
-        .binaryOrZero = function(source, name, label, positive = "") {
+        .binaryOrZero = function(source, name, label, positive = "", mask = NULL) {
             if (is.null(name))
                 return(list(values = rep.int(0L, nrow(source)), zero = "No", one = "Yes", supplied = FALSE))
-            result <- .te_as_binary(source[[name]], label, positive, allowMissing = TRUE)
+            result <- .te_as_binary(source[[name]], label, positive, allowMissing = TRUE, mask = mask)
             result$supplied <- TRUE
             result
         },
@@ -61,20 +61,21 @@ landmarkTrialClass <- R6::R6Class(
             if (nrow(source) < 20L)
                 stop("At least 20 rows are required.")
             originalN <- nrow(source)
-            recoded <- .te_recode_absence(source, self$options$absenceVars)
-            source <- recoded$data
 
             eligibility <- if (is.null(self$options$eligibility)) {
                 list(values = rep.int(1L, originalN), zero = "Ineligible", one = "Eligible")
             } else .te_as_binary(source[[self$options$eligibility]], "Eligibility", self$options$eligibilityPositive, allowMissing = TRUE)
-            treatmentA <- .te_as_binary(source[[self$options$treatmentA]], "Treatment component A", self$options$treatmentAPositive, allowMissing = TRUE)
-            treatmentB <- .te_as_binary(source[[self$options$treatmentB]], "Treatment component B", self$options$treatmentBPositive, allowMissing = TRUE)
-            event1 <- private$.binaryOrZero(source, self$options$failureEvent1, "Failure component 1", self$options$outcomePositive)
-            event2 <- private$.binaryOrZero(source, self$options$failureEvent2, "Failure component 2", self$options$outcomePositive)
-            competing <- private$.binaryOrZero(source, self$options$competingEvent, "Competing event", self$options$outcomePositive)
+            baselineEligible <- eligibility$values == 1L & !is.na(eligibility$values)
+            recoded <- .te_recode_absence(source, self$options$absenceVars, mask = baselineEligible)
+            source <- recoded$data
+            treatmentA <- .te_as_binary(source[[self$options$treatmentA]], "Treatment component A", self$options$treatmentAPositive, allowMissing = TRUE, mask = baselineEligible)
+            treatmentB <- .te_as_binary(source[[self$options$treatmentB]], "Treatment component B", self$options$treatmentBPositive, allowMissing = TRUE, mask = baselineEligible)
+            event1 <- private$.binaryOrZero(source, self$options$failureEvent1, "Failure component 1", self$options$outcomePositive, baselineEligible)
+            event2 <- private$.binaryOrZero(source, self$options$failureEvent2, "Failure component 2", self$options$outcomePositive, baselineEligible)
+            competing <- private$.binaryOrZero(source, self$options$competingEvent, "Competing event", self$options$outcomePositive, baselineEligible)
 
             if (identical(self$options$outcomeSource, "recorded")) {
-                outcome <- .te_as_binary(source[[self$options$outcome]], "Recorded failure outcome", self$options$outcomePositive, allowMissing = TRUE)
+                outcome <- .te_as_binary(source[[self$options$outcome]], "Recorded failure outcome", self$options$outcomePositive, allowMissing = TRUE, mask = baselineEligible)
                 Y <- outcome$values
                 outcomeMapping <- paste0(outcome$zero, " = 0; ", outcome$one, " = 1")
                 if (is.null(self$options$failureEvent1) && !is.null(self$options$failureTime1)) {
@@ -106,9 +107,12 @@ landmarkTrialClass <- R6::R6Class(
             labels <- setNames(covariates, unname(internal))
 
             cluster <- if (is.null(self$options$cluster)) NULL else as.character(.te_trim(source[[self$options$cluster]]))
-            baselineEligible <- eligibility$values == 1L
-            if (!is.null(cluster) && any(is.na(cluster) & baselineEligible, na.rm = TRUE))
-                stop("Cluster ID is missing for one or more baseline-eligible rows.")
+            clusterMissing <- if (is.null(cluster)) rep(FALSE, originalN) else is.na(cluster) & baselineEligible
+            if (any(clusterMissing)) {
+                if (identical(self$options$missingCluster, "stop"))
+                    stop(sum(clusterMissing), " baseline-eligible rows have missing cluster IDs. Choose 'Assign Unknown cluster' only when this matches the analysis plan.")
+                cluster[clusterMissing] <- "Unknown"
+            }
 
             list(
                 source = source,
@@ -129,6 +133,7 @@ landmarkTrialClass <- R6::R6Class(
                 internalCovs = unname(internal),
                 labels = labels,
                 cluster = cluster,
+                clusterMissing = sum(clusterMissing),
                 times = list(
                     treatmentA = private$.elapsedVariable(source, self$options$treatmentATime),
                     treatmentB = private$.elapsedVariable(source, self$options$treatmentBTime),
@@ -177,6 +182,8 @@ landmarkTrialClass <- R6::R6Class(
                     rows[[length(rows) + 1L]] <<- data.frame(variable = variable, issue = issue, n = count, action = action, stringsAsFactors = FALSE)
             }
             base <- prepared$eligibility == 1L & !is.na(prepared$eligibility)
+            if (prepared$clusterMissing > 0L)
+                add(self$options$cluster, "Missing/blank cluster ID", prepared$clusterMissing, "Assigned to one shared Unknown cluster")
             if (nrow(prepared$recodeAudit) > 0L) {
                 for (i in seq_len(nrow(prepared$recodeAudit))) {
                     item <- prepared$recodeAudit[i, ]
@@ -211,7 +218,9 @@ landmarkTrialClass <- R6::R6Class(
             }
             if (!is.null(self$options$dischargeTime)) {
                 time <- prepared$times$discharge
-                add(self$options$dischargeTime, "Negative discharge time", sum(base & is.finite(time) & time < 0, na.rm = TRUE), "Ignore invalid time for landmark exclusion")
+                dischargeAction <- if (identical(self$options$unknownDischarge, "exclude")) "Exclude at each landmark" else "Retain; discharge before the landmark cannot be verified"
+                add(self$options$dischargeTime, "Missing/unparseable discharge time", sum(base & !is.finite(time), na.rm = TRUE), dischargeAction)
+                add(self$options$dischargeTime, "Negative discharge time", sum(base & is.finite(time) & time < 0, na.rm = TRUE), dischargeAction)
             }
             if (length(rows) == 0L)
                 data.frame(variable = "All selected time variables", issue = "No flagged timing conflicts", n = 0L, action = "None", stringsAsFactors = FALSE)
@@ -227,7 +236,9 @@ landmarkTrialClass <- R6::R6Class(
             event1 <- private$.eventTiming(prepared$event1, prepared$times$failure1, !is.null(self$options$failureTime1), window)
             event2 <- private$.eventTiming(prepared$event2, prepared$times$failure2, !is.null(self$options$failureTime2), window)
             competing <- private$.eventTiming(prepared$competing, prepared$times$competing, !is.null(self$options$competingTime), window)
-            dischargeEarly <- if (is.null(self$options$dischargeTime)) rep(FALSE, prepared$originalN) else is.finite(prepared$times$discharge) & prepared$times$discharge >= 0 & prepared$times$discharge <= window
+            dischargeSupplied <- !is.null(self$options$dischargeTime)
+            dischargeEarly <- if (!dischargeSupplied) rep(FALSE, prepared$originalN) else is.finite(prepared$times$discharge) & prepared$times$discharge >= 0 & prepared$times$discharge <= window
+            dischargeUnknown <- if (!dischargeSupplied) rep(FALSE, prepared$originalN) else !is.finite(prepared$times$discharge) | prepared$times$discharge < 0
             early <- event1$early | event2$early | competing$early | dischargeEarly
             eventUnknown <- event1$unknown | event2$unknown | competing$unknown
             outcomeUnknown <- is.na(prepared$Y)
@@ -242,8 +253,10 @@ landmarkTrialClass <- R6::R6Class(
             flow[[3]] <- data.frame(step = "Treatment strategy classifiable", n = current, excluded = previous - current)
             previous <- current
             sequential <- sequential & !early
+            if (identical(self$options$unknownDischarge, "exclude"))
+                sequential <- sequential & !dischargeUnknown
             current <- sum(sequential)
-            flow[[4]] <- data.frame(step = "Remain eligible and event-free at landmark", n = current, excluded = previous - current)
+            flow[[4]] <- data.frame(step = "Remain observed and event-free at landmark", n = current, excluded = previous - current)
             previous <- current
             if (identical(self$options$unknownEvent, "exclude"))
                 sequential <- sequential & !eventUnknown
@@ -277,6 +290,19 @@ landmarkTrialClass <- R6::R6Class(
             if (isTRUE(self$options$runBothStrata)) c(1L, 0L) else if (self$options$primaryStratum == "present") 1L else 0L
         },
 
+        .componentLabel = function(value, fallback) {
+            value <- trimws(as.character(value))
+            if (length(value) == 0L || is.na(value) || !nzchar(value)) fallback else value
+        },
+
+        .labelA = function() private$.componentLabel(self$options$treatmentALabel, "Treatment A"),
+
+        .labelB = function() private$.componentLabel(self$options$treatmentBLabel, "Treatment B"),
+
+        .stratumLabel = function(stratum) {
+            paste(private$.labelA(), if (stratum == 1L) "present" else "absent")
+        },
+
         .fitSpecification = function(prepared, cohort, stratum) {
             keep <- cohort$keep & cohort$treatmentA == stratum & !is.na(cohort$treatmentA)
             data <- data.frame(A = cohort$treatmentB[keep], Y = cohort$Y[keep])
@@ -287,7 +313,7 @@ landmarkTrialClass <- R6::R6Class(
             covMissing <- if (length(prepared$internalCovs) == 0L) rep(FALSE, nrow(data)) else !stats::complete.cases(data[, prepared$internalCovs, drop = FALSE])
             excludedMissing <- sum(covMissing)
             if (any(covMissing) && identical(self$options$missingMethod, "fail"))
-                stop(excludedMissing, " rows in the ", cohort$label, ", treatment A ", if (stratum == 1L) "present" else "absent", " stratum have missing baseline covariates.")
+                stop(excludedMissing, " rows in the ", cohort$label, ", ", private$.stratumLabel(stratum), " stratum have missing baseline covariates.")
             if (any(covMissing) && identical(self$options$missingMethod, "completeCases"))
                 data <- data[!covMissing, , drop = FALSE]
             if (nrow(data) < 20L || length(unique(data$A)) < 2L || min(table(data$A)) < 5L)
@@ -347,8 +373,8 @@ landmarkTrialClass <- R6::R6Class(
                         keep <- cohort$keep & cohort$treatmentA == a & cohort$treatmentB == b
                         strategyRows[[length(strategyRows) + 1L]] <- data.frame(
                             window = cohort$label,
-                            treatmentA = if (a == 1) "Present" else "Absent",
-                            treatmentB = if (b == 1) "Exposed" else "Unexposed",
+                            treatmentA = paste(private$.labelA(), if (a == 1) "present" else "absent"),
+                            treatmentB = paste(private$.labelB(), if (b == 1) "exposed" else "unexposed"),
                             n = sum(keep, na.rm = TRUE),
                             failures = sum(cohort$Y[keep] == 1L, na.rm = TRUE),
                             stringsAsFactors = FALSE
@@ -360,7 +386,7 @@ landmarkTrialClass <- R6::R6Class(
                     key <- paste(cohort$window, stratum, sep = "|")
                     specFits[[key]] <- spec
                     if (!is.null(spec$error)) {
-                        warnings <- c(warnings, paste0(cohort$label, ", treatment A ", if (stratum == 1L) "present" else "absent", ": ", spec$error, "."))
+                        warnings <- c(warnings, paste0(cohort$label, ", ", private$.stratumLabel(stratum), ": ", spec$error, "."))
                         next
                     }
                     desired <- private$.selectedEstimand()
@@ -370,7 +396,7 @@ landmarkTrialClass <- R6::R6Class(
                     for (i in seq_len(nrow(selected))) {
                         effectRows[[length(effectRows) + 1L]] <- data.frame(
                             window = cohort$label,
-                            stratum = paste0("Treatment A ", if (stratum == 1L) "present" else "absent"),
+                            stratum = private$.stratumLabel(stratum),
                             method = selected$method[[i]],
                             n = nrow(spec$data),
                             treated = sum(spec$data$A == 1L),
@@ -394,7 +420,7 @@ landmarkTrialClass <- R6::R6Class(
             primaryFit <- specFits[[primaryKey]]
             balance <- if (is.null(primaryFit) || !is.null(primaryFit$error)) data.frame() else primaryFit$fitted$balance
             fingerprint <- .te_specification_fingerprint(list(
-                analysis = "landmarkTrial", version = "1.1.0",
+                analysis = "landmarkTrial", version = "1.1.1",
                 variables = private$.optionVariables(), windows = windows,
                 positiveLevels = list(
                     eligibility = self$options$eligibilityPositive,
@@ -402,10 +428,14 @@ landmarkTrialClass <- R6::R6Class(
                     treatmentB = self$options$treatmentBPositive,
                     outcome = self$options$outcomePositive
                 ),
+                displayLabels = list(treatmentA = private$.labelA(), treatmentB = private$.labelB()),
                 outcomeSource = self$options$outcomeSource,
                 competingHandling = self$options$competingHandling,
                 timeMode = self$options$timeMode, timeUnit = self$options$timeUnit,
-                unknownTreatment = self$options$unknownTreatment, unknownEvent = self$options$unknownEvent,
+                unknownTreatment = self$options$unknownTreatment,
+                unknownEvent = self$options$unknownEvent,
+                unknownDischarge = self$options$unknownDischarge,
+                missingCluster = self$options$missingCluster,
                 strata = private$.strata(), covariates = self$options$covariates,
                 absenceVariables = self$options$absenceVars,
                 missing = list(method = self$options$missingMethod, imputations = self$options$imputations),
@@ -429,15 +459,25 @@ landmarkTrialClass <- R6::R6Class(
             rows <- list(
                 c("Rows received after jamovi filters", format(prepared$originalN, big.mark = ",")),
                 c("Decision windows", paste(vapply(fitted$windows, private$.windowLabel, character(1)), collapse = ", ")),
-                c("Treatment A coding", prepared$treatmentAMapping),
-                c("Treatment B coding", prepared$treatmentBMapping),
+                c(paste(private$.labelA(), "coding"), prepared$treatmentAMapping),
+                c(paste(private$.labelB(), "coding"), prepared$treatmentBMapping),
                 c("Outcome", prepared$outcomeMapping),
                 c("Final cohort size(s)", paste(finalCounts, collapse = ", ")),
-                c("Analyzed strata", paste(ifelse(private$.strata() == 1L, "Treatment A present", "Treatment A absent"), collapse = "; ")),
+                c("Analyzed strata", paste(vapply(private$.strata(), private$.stratumLabel, character(1)), collapse = "; ")),
                 c("Primary effect", private$.selectedEstimand()),
-                c("Inference", if (is.null(prepared$cluster)) "Independent-row influence function / row bootstrap" else paste0(length(unique(prepared$cluster[prepared$eligibility == 1L])), " clusters / whole-cluster bootstrap")),
+                c("Inference", if (is.null(prepared$cluster)) {
+                    if (self$options$bootstrapSamples > 0L) "Independent-row influence-function SE and row bootstrap" else "Independent-row influence-function SE"
+                } else {
+                    paste0(
+                        length(unique(prepared$cluster[prepared$eligibility == 1L])),
+                        " clusters; cluster-robust influence-function SE",
+                        if (self$options$bootstrapSamples > 0L) " and whole-cluster bootstrap" else ""
+                    )
+                }),
+                c("Missing cluster ID policy", if (is.null(self$options$cluster)) "Not applicable" else if (self$options$missingCluster == "unknown") "Assign one shared Unknown cluster" else "Stop and report"),
+                c("Missing/invalid discharge policy", if (is.null(self$options$dischargeTime)) "No discharge variable supplied" else if (self$options$unknownDischarge == "exclude") "Exclude when landmark observation cannot be verified" else "Retain and flag"),
                 c("Missing covariates", switch(self$options$missingMethod, fail = "Stop and report", completeCases = "Complete-case", hotDeckMI = paste0(self$options$imputations, " hot-deck imputations"))),
-                c("Timing/recoding issues flagged", sum(fitted$timeline$n)),
+                c("Audit flags across variables (counts may overlap)", sum(fitted$timeline$n)),
                 c("Specification fingerprint", substr(fitted$fingerprint, 1, 16))
             )
             for (i in seq_along(rows))
@@ -477,12 +517,19 @@ landmarkTrialClass <- R6::R6Class(
             notes <- c(
                 "Eligibility, treatment classification, and start of outcome follow-up are aligned at each landmark. Events or discharge at/before the landmark are excluded before treatment effects are estimated.",
                 "The treatment-initiation comparison is an observational analogue of an assignment effect, not a literal intention-to-treat effect unless randomized assignment is observed.",
-                if (is.null(self$options$treatmentATime)) "No timing variable was supplied for treatment A; recorded treatment A is assumed to describe strategy membership by each landmark." else NULL,
-                if (is.null(self$options$treatmentBTime)) "No timing variable was supplied for treatment B; recorded treatment B is assumed to describe strategy membership by each landmark." else NULL,
+                if (is.null(self$options$treatmentATime)) paste0("No timing variable was supplied for ", private$.labelA(), "; recorded status is assumed to describe strategy membership by each landmark.") else NULL,
+                if (is.null(self$options$treatmentBTime)) paste0("No timing variable was supplied for ", private$.labelB(), "; recorded status is assumed to describe strategy membership by each landmark.") else NULL,
                 if (is.null(self$options$failureTime1) && is.null(self$options$failureTime2)) "No failure-time variable was supplied. Outcome-free status at each landmark cannot be verified; this is acceptable only when failure cannot occur before the landmark by design." else NULL,
-                paste0("Treatment with missing/invalid timing is handled by: ", self$options$unknownTreatment, ". Failure with missing/invalid timing is handled by: ", self$options$unknownEvent, "."),
+                paste0("Treatment with missing/invalid timing is handled by: ", self$options$unknownTreatment, ". Failure with missing/invalid timing is handled by: ", self$options$unknownEvent, ". Missing/invalid discharge timing is handled by: ", self$options$unknownDischarge, "."),
+                "Eligibility is applied before treatment and outcome coding are validated, so values observed only among ineligible rows do not invalidate the eligible cohort.",
                 "Competing-event handling is a prespecified estimand choice. Excluding competing events conditions on post-baseline information and is provided only as a sensitivity analysis, not as a default causal estimand.",
-                if (is.null(fitted$prepared$cluster)) "Rows are treated as independent." else "Cluster-robust influence functions and whole-cluster bootstrap preserve within-cluster dependence.",
+                if (is.null(fitted$prepared$cluster)) {
+                    "Rows are treated as independent."
+                } else if (self$options$bootstrapSamples > 0L) {
+                    "Cluster-robust influence functions and whole-cluster bootstrap preserve within-cluster dependence."
+                } else {
+                    "Cluster-robust influence functions preserve within-cluster dependence."
+                },
                 if (self$options$bootstrapSamples > 0L) paste0("Percentile confidence limits use up to ", self$options$bootstrapSamples, " refitted bootstrap samples per landmark/stratum specification.") else "Confidence limits use clustered or independent influence-function standard errors.",
                 "Firth mean bias-reduced logistic regression is used automatically when outcome or propensity separation/instability is detected.",
                 "Inspect the timeline audit, cohort flow, overlap, effective sample size, and balance before interpreting effects. A balance threshold does not establish exchangeability.",
@@ -532,11 +579,12 @@ landmarkTrialClass <- R6::R6Class(
             data <- image$state
             data$specification <- paste(data$window, data$stratum, sep = " - ")
             data$specification <- factor(data$specification, levels = rev(unique(data$specification)))
+            colours <- stats::setNames(c("#E69F00", "#0072B2"), c(private$.stratumLabel(1L), private$.stratumLabel(0L)))
             ggplot2::ggplot(data, ggplot2::aes(x = estimate, y = specification, colour = stratum)) +
                 ggplot2::geom_vline(xintercept = data$null[[1]], linetype = "dashed", colour = "#777777") +
                 ggplot2::geom_errorbar(ggplot2::aes(xmin = lower, xmax = upper), width = .18, orientation = "y", linewidth = .85) +
                 ggplot2::geom_point(size = 3.2) +
-                ggplot2::scale_colour_manual(values = c("Treatment A present" = "#E69F00", "Treatment A absent" = "#0072B2")) +
+                ggplot2::scale_colour_manual(values = colours) +
                 ggplot2::labs(x = private$.selectedEstimand(), y = NULL, colour = "Subgroup") +
                 ggtheme
         },
@@ -545,7 +593,7 @@ landmarkTrialClass <- R6::R6Class(
             value <- function(x) if (is.null(x)) "NULL" else paste0('"', gsub('"', '\\\"', x), '"')
             vector <- function(x) if (length(x) == 0L) "NULL" else paste0("c(", paste(vapply(x, value, character(1)), collapse = ", "), ")")
             paste(c(
-                "# Reproduce the TrialEmulationj 1.1 landmark specification",
+                "# Reproduce the TrialEmulationj 1.1.1 landmark specification",
                 "result <- trialemulationj::landmarkTrial(",
                 "  data = data,",
                 paste0("  eligibility = ", value(self$options$eligibility), ","),
@@ -555,7 +603,7 @@ landmarkTrialClass <- R6::R6Class(
                 paste0("  failureEvent1 = ", value(self$options$failureEvent1), ","),
                 paste0("  failureEvent2 = ", value(self$options$failureEvent2), ","),
                 paste0("  competingEvent = ", value(self$options$competingEvent), ","),
-                paste0("  cluster = ", value(self$options$cluster), ","),
+                paste0("  cluster = ", value(self$options$cluster), ", missingCluster = ", value(self$options$missingCluster), ","),
                 paste0("  indexTime = ", value(self$options$indexTime), ","),
                 paste0("  treatmentATime = ", value(self$options$treatmentATime), ","),
                 paste0("  treatmentBTime = ", value(self$options$treatmentBTime), ","),
@@ -569,11 +617,12 @@ landmarkTrialClass <- R6::R6Class(
                 paste0("  treatmentAPositive = ", value(self$options$treatmentAPositive), ","),
                 paste0("  treatmentBPositive = ", value(self$options$treatmentBPositive), ","),
                 paste0("  outcomePositive = ", value(self$options$outcomePositive), ","),
+                paste0("  treatmentALabel = ", value(self$options$treatmentALabel), ", treatmentBLabel = ", value(self$options$treatmentBLabel), ","),
                 paste0("  outcomeSource = ", value(self$options$outcomeSource), ","),
                 paste0("  competingHandling = ", value(self$options$competingHandling), ","),
                 paste0("  timeMode = ", value(self$options$timeMode), ", timeUnit = ", value(self$options$timeUnit), ","),
                 paste0("  window1 = ", self$options$window1, ", runSecondWindow = ", if (isTRUE(self$options$runSecondWindow)) "TRUE" else "FALSE", ", window2 = ", self$options$window2, ","),
-                paste0("  unknownTreatment = ", value(self$options$unknownTreatment), ", unknownEvent = ", value(self$options$unknownEvent), ","),
+                paste0("  unknownTreatment = ", value(self$options$unknownTreatment), ", unknownEvent = ", value(self$options$unknownEvent), ", unknownDischarge = ", value(self$options$unknownDischarge), ","),
                 paste0("  runBothStrata = ", if (isTRUE(self$options$runBothStrata)) "TRUE" else "FALSE", ", primaryStratum = ", value(self$options$primaryStratum), ","),
                 paste0("  primaryWindow = ", value(self$options$primaryWindow), ","),
                 paste0("  missingMethod = ", value(self$options$missingMethod), ", imputations = ", self$options$imputations, ","),

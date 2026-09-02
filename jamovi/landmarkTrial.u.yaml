@@ -10,35 +10,35 @@ children:
     stretchFactor: 1
     children:
       - type: TargetLayoutBox
-        label: Baseline eligibility (optional)
+        label: Step 1 — Baseline eligibility (optional)
         children:
           - type: VariablesListBox
             name: eligibility
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Treatment component A / stratum
+        label: Step 2a — Treatment A (defines strata)
         children:
           - type: VariablesListBox
             name: treatmentA
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Treatment component B / exposure
+        label: Step 2b — Treatment B (effect estimated within strata)
         children:
           - type: VariablesListBox
             name: treatmentB
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Recorded failure outcome
+        label: Step 3 — Recorded outcome (if not constructing a composite)
         children:
           - type: VariablesListBox
             name: outcome
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Cluster ID (optional)
+        label: Centre/site cluster ID (optional)
         children:
           - type: VariablesListBox
             name: cluster
@@ -50,21 +50,21 @@ children:
     stretchFactor: 1
     children:
       - type: TargetLayoutBox
-        label: Failure component 1 (optional)
+        label: Composite failure component 1 (optional)
         children:
           - type: VariablesListBox
             name: failureEvent1
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Failure component 2 (optional)
+        label: Composite failure component 2 (optional)
         children:
           - type: VariablesListBox
             name: failureEvent2
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Competing event (optional)
+        label: Competing event indicator (optional)
         children:
           - type: VariablesListBox
             name: competingEvent
@@ -76,49 +76,49 @@ children:
     stretchFactor: 1
     children:
       - type: TargetLayoutBox
-        label: Index/start date-time
+        label: Index/start time (required for date-time mode)
         children:
           - type: VariablesListBox
             name: indexTime
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Time to treatment A (optional)
+        label: Treatment A time (leave blank only if A is known at baseline)
         children:
           - type: VariablesListBox
             name: treatmentATime
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Time to treatment B (optional)
+        label: Treatment B time
         children:
           - type: VariablesListBox
             name: treatmentBTime
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Time to failure component 1
+        label: Failure component 1 time
         children:
           - type: VariablesListBox
             name: failureTime1
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Time to failure component 2
+        label: Failure component 2 time
         children:
           - type: VariablesListBox
             name: failureTime2
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Time to discharge/censoring
+        label: Discharge/censoring time
         children:
           - type: VariablesListBox
             name: dischargeTime
             isTarget: true
             maxItemCount: 1
       - type: TargetLayoutBox
-        label: Time to competing event
+        label: Competing-event time
         children:
           - type: VariablesListBox
             name: competingTime
@@ -130,21 +130,21 @@ children:
     stretchFactor: 1
     children:
       - type: TargetLayoutBox
-        label: Baseline adjustment covariates
+        label: Baseline adjustment covariates (from the prespecified DAG)
         children:
           - type: VariablesListBox
             name: covariates
             isTarget: true
       - type: TargetLayoutBox
-        label: Variables where blank means absence
+        label: Variables where blank truly means No/absent
         children:
           - type: VariablesListBox
             name: absenceVars
             isTarget: true
 
   - type: CollapseBox
-    label: Coding and outcome
-    collapsed: true
+    label: Step 4 — Coding and outcome definition
+    collapsed: false
     children:
       - type: TextBox
         name: eligibilityPositive
@@ -162,6 +162,14 @@ children:
         name: outcomePositive
         format: string
         width: large
+      - type: TextBox
+        name: treatmentALabel
+        format: string
+        width: large
+      - type: TextBox
+        name: treatmentBLabel
+        format: string
+        width: large
       - type: ComboBox
         name: outcomeSource
       - type: ComboBox
@@ -175,7 +183,7 @@ children:
         cell: { column: 0, row: 0 }
         children:
           - type: Label
-            label: Timing
+            label: Step 5 — Landmark timing
             children:
               - type: ComboBox
                 name: timeMode
@@ -194,15 +202,17 @@ children:
         cell: { column: 1, row: 0 }
         children:
           - type: Label
-            label: Ambiguous timing
+            label: Missing and inconsistent times
             children:
               - type: ComboBox
                 name: unknownTreatment
               - type: ComboBox
                 name: unknownEvent
+              - type: ComboBox
+                name: unknownDischarge
 
   - type: CollapseBox
-    label: Contrasts and models
+    label: Step 6 — Contrasts, models, and positivity
     collapsed: false
     children:
       - type: CheckBox
@@ -225,11 +235,13 @@ children:
         format: number
 
   - type: CollapseBox
-    label: Missing data and inference
+    label: Step 7 — Missing data and inference
     collapsed: true
     children:
       - type: ComboBox
         name: missingMethod
+      - type: ComboBox
+        name: missingCluster
       - type: TextBox
         name: imputations
         format: number
@@ -246,7 +258,7 @@ children:
         format: number
 
   - type: CollapseBox
-    label: Output
+    label: Step 8 — Output
     collapsed: false
     children:
       - type: CheckBox

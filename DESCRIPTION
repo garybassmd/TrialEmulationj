@@ -1,7 +1,7 @@
 Package: trialemulationj
 Type: Package
 Title: Causal Trial Emulation for Jamovi
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: c(
     person("Gary", "Bass", role = c("aut", "cre"),
            email = "maintainer@example.org"),

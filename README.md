@@ -1,9 +1,22 @@
-# TrialEmulationj 1.0
+# TrialEmulationj 1.1.1
 
 TrialEmulationj is a jamovi module for designing, auditing, estimating, and
 reporting causal analyses that emulate treatment strategies with observational
 data. Version 1.1 keeps design decisions visible and separates workflows whose
 data structures, estimands, and identifying assumptions are not interchangeable.
+
+## What version 1.1.1 adds
+
+- A guided, numbered jamovi menu and stepwise landmark-analysis interface.
+- Eligibility-first validation, so extra treatment or outcome levels found only
+  among ineligible rows do not invalidate the eligible target-trial cohort.
+- Explicit policies for missing cluster identifiers and missing, unparseable,
+  or negative discharge times.
+- Clearer cohort-flow language separating treatment classification, continued
+  observation, event-free eligibility, and outcome-time usability.
+- A worked SnapSBO mapping guide for 24/48-hour WSEC analyses.
+
+Version 1.1 introduced:
 
 - A target-trial protocol builder with readiness checks and a SHA-256
   specification fingerprint.
@@ -99,7 +112,7 @@ and diagnostic plots from one-row-per-person survival data.
 
 1. Open jamovi.
 2. Open the module library and choose **Sideload**.
-3. Select the version 1.1 `.jmo` file.
+3. Select the version 1.1.1 `.jmo` file.
 4. Open **Causal Inference** and begin with **1. Target Trial Protocol**.
 
 For development builds, install R, jamovi, and
@@ -152,3 +165,7 @@ observed.
 
 Before public distribution, replace the placeholder maintainer email in
 `DESCRIPTION` with the project's support address.
+
+For the SnapSBO 24/48-hour workflow, see
+[`docs/snapsbo-workflow.md`](docs/snapsbo-workflow.md). Patient-level SnapSBO
+data are not included in this repository or its releases.

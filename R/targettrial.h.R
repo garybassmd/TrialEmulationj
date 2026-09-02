@@ -501,7 +501,7 @@ targetTrialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "trialemulationj",
                 name = "targetTrial",
-                version = c(1,0,0),
+                version = c(1,1,1),
                 options = options,
                 results = targetTrialResults$new(options=options),
                 data = data,

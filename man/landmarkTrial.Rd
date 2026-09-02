@@ -10,14 +10,16 @@
 landmarkTrial(
   data, eligibility = NULL, treatmentA, treatmentB, outcome = NULL,
   failureEvent1 = NULL, failureEvent2 = NULL, competingEvent = NULL,
-  cluster = NULL, indexTime = NULL, treatmentATime = NULL,
+  cluster = NULL, missingCluster = "stop", indexTime = NULL, treatmentATime = NULL,
   treatmentBTime = NULL, failureTime1 = NULL, failureTime2 = NULL,
   dischargeTime = NULL, competingTime = NULL, covariates = NULL,
   absenceVars = NULL, eligibilityPositive = "", treatmentAPositive = "",
-  treatmentBPositive = "", outcomePositive = "", outcomeSource = "recorded",
+  treatmentBPositive = "", outcomePositive = "", treatmentALabel = "Treatment A",
+  treatmentBLabel = "Treatment B", outcomeSource = "recorded",
   competingHandling = "noFailure", timeMode = "elapsed", timeUnit = "hours",
   window1 = 24, runSecondWindow = TRUE, window2 = 48,
   unknownTreatment = "exclude", unknownEvent = "exclude",
+  unknownDischarge = "exclude",
   runBothStrata = TRUE, primaryStratum = "present", primaryWindow = "first",
   missingMethod = "fail", imputations = 20, outcomeMethod = "auto",
   propensityMethod = "auto", minPS = 0.01, maxPS = 0.99,
@@ -34,16 +36,19 @@ landmarkTrial(
   \item{failureEvent1, failureEvent2}{Optional binary components for a composite outcome and timing checks.}
   \item{competingEvent}{Optional competing-event indicator.}
   \item{cluster}{Optional cluster identifier.}
+  \item{missingCluster}{Stop when an eligible row has no cluster ID or assign all such rows to one shared Unknown cluster.}
   \item{indexTime}{Index date-time when \code{timeMode = "dateTime"}.}
   \item{treatmentATime, treatmentBTime, failureTime1, failureTime2, dischargeTime, competingTime}{Elapsed or date-time variables used to align each landmark.}
   \item{covariates}{Baseline adjustment covariates.}
   \item{absenceVars}{Variables explicitly recoded from missing/blank to absence.}
   \item{eligibilityPositive, treatmentAPositive, treatmentBPositive, outcomePositive}{Optional positive-level labels.}
+  \item{treatmentALabel, treatmentBLabel}{Display labels used in tables, warnings, and effect plots.}
   \item{outcomeSource}{Use the recorded outcome or combine selected failure components.}
   \item{competingHandling}{Treat as no failure, include in a composite, or exclude as a sensitivity analysis.}
   \item{timeMode, timeUnit}{Elapsed/date-time representation and hours/days scale.}
   \item{window1, runSecondWindow, window2}{Landmark decision-window settings.}
   \item{unknownTreatment, unknownEvent}{Policies for recorded treatment/events with unusable timing.}
+  \item{unknownDischarge}{Exclude rows whose continued observation at the landmark cannot be verified, or retain and flag them for sensitivity analysis.}
   \item{runBothStrata, primaryStratum, primaryWindow}{Stratum and primary diagnostic-plot settings.}
   \item{missingMethod, imputations}{Baseline-covariate missingness policy.}
   \item{outcomeMethod, propensityMethod}{Automatic, maximum-likelihood, or Firth binary models.}
@@ -53,4 +58,4 @@ landmarkTrial(
   \item{showFlowPlot, showBalancePlot, showEffectPlot, showSyntax}{Output display options.}
 }
 \value{A jamovi results object containing cohort flow, timing audit, four-strategy counts, effects, balance, plots, diagnostics, and reproducible syntax.}
-\details{Eligibility, treatment classification, and follow-up are aligned at each landmark. Causal interpretation requires a prespecified protocol, exchangeability, positivity, consistency, and baseline-only adjustment.}
+\details{Eligibility is applied before treatment and outcome coding are validated. Treatment classification and follow-up are then aligned at each landmark. Missing, unparseable, or negative discharge times are handled according to the explicit discharge policy. Causal interpretation requires a prespecified protocol, exchangeability, positivity, consistency, and baseline-only adjustment.}

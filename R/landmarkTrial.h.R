@@ -14,6 +14,7 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             failureEvent2 = NULL,
             competingEvent = NULL,
             cluster = NULL,
+            missingCluster = "stop",
             indexTime = NULL,
             treatmentATime = NULL,
             treatmentBTime = NULL,
@@ -27,6 +28,8 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             treatmentAPositive = "",
             treatmentBPositive = "",
             outcomePositive = "",
+            treatmentALabel = "Treatment A",
+            treatmentBLabel = "Treatment B",
             outcomeSource = "recorded",
             competingHandling = "noFailure",
             timeMode = "elapsed",
@@ -36,6 +39,7 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             window2 = 48,
             unknownTreatment = "exclude",
             unknownEvent = "exclude",
+            unknownDischarge = "exclude",
             runBothStrata = TRUE,
             primaryStratum = "present",
             primaryWindow = "first",
@@ -90,6 +94,13 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 "cluster",
                 cluster,
                 default=NULL)
+            private$..missingCluster <- jmvcore::OptionList$new(
+                "missingCluster",
+                missingCluster,
+                options=list(
+                    "stop",
+                    "unknown"),
+                default="stop")
             private$..indexTime <- jmvcore::OptionVariable$new(
                 "indexTime",
                 indexTime,
@@ -142,6 +153,14 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 "outcomePositive",
                 outcomePositive,
                 default="")
+            private$..treatmentALabel <- jmvcore::OptionString$new(
+                "treatmentALabel",
+                treatmentALabel,
+                default="Treatment A")
+            private$..treatmentBLabel <- jmvcore::OptionString$new(
+                "treatmentBLabel",
+                treatmentBLabel,
+                default="Treatment B")
             private$..outcomeSource <- jmvcore::OptionList$new(
                 "outcomeSource",
                 outcomeSource,
@@ -197,6 +216,13 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             private$..unknownEvent <- jmvcore::OptionList$new(
                 "unknownEvent",
                 unknownEvent,
+                options=list(
+                    "exclude",
+                    "retain"),
+                default="exclude")
+            private$..unknownDischarge <- jmvcore::OptionList$new(
+                "unknownDischarge",
+                unknownDischarge,
                 options=list(
                     "exclude",
                     "retain"),
@@ -312,6 +338,7 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$.addOption(private$..failureEvent2)
             self$.addOption(private$..competingEvent)
             self$.addOption(private$..cluster)
+            self$.addOption(private$..missingCluster)
             self$.addOption(private$..indexTime)
             self$.addOption(private$..treatmentATime)
             self$.addOption(private$..treatmentBTime)
@@ -325,6 +352,8 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$.addOption(private$..treatmentAPositive)
             self$.addOption(private$..treatmentBPositive)
             self$.addOption(private$..outcomePositive)
+            self$.addOption(private$..treatmentALabel)
+            self$.addOption(private$..treatmentBLabel)
             self$.addOption(private$..outcomeSource)
             self$.addOption(private$..competingHandling)
             self$.addOption(private$..timeMode)
@@ -334,6 +363,7 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$.addOption(private$..window2)
             self$.addOption(private$..unknownTreatment)
             self$.addOption(private$..unknownEvent)
+            self$.addOption(private$..unknownDischarge)
             self$.addOption(private$..runBothStrata)
             self$.addOption(private$..primaryStratum)
             self$.addOption(private$..primaryWindow)
@@ -361,6 +391,7 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         failureEvent2 = function() private$..failureEvent2$value,
         competingEvent = function() private$..competingEvent$value,
         cluster = function() private$..cluster$value,
+        missingCluster = function() private$..missingCluster$value,
         indexTime = function() private$..indexTime$value,
         treatmentATime = function() private$..treatmentATime$value,
         treatmentBTime = function() private$..treatmentBTime$value,
@@ -374,6 +405,8 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         treatmentAPositive = function() private$..treatmentAPositive$value,
         treatmentBPositive = function() private$..treatmentBPositive$value,
         outcomePositive = function() private$..outcomePositive$value,
+        treatmentALabel = function() private$..treatmentALabel$value,
+        treatmentBLabel = function() private$..treatmentBLabel$value,
         outcomeSource = function() private$..outcomeSource$value,
         competingHandling = function() private$..competingHandling$value,
         timeMode = function() private$..timeMode$value,
@@ -383,6 +416,7 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         window2 = function() private$..window2$value,
         unknownTreatment = function() private$..unknownTreatment$value,
         unknownEvent = function() private$..unknownEvent$value,
+        unknownDischarge = function() private$..unknownDischarge$value,
         runBothStrata = function() private$..runBothStrata$value,
         primaryStratum = function() private$..primaryStratum$value,
         primaryWindow = function() private$..primaryWindow$value,
@@ -409,6 +443,7 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         ..failureEvent2 = NA,
         ..competingEvent = NA,
         ..cluster = NA,
+        ..missingCluster = NA,
         ..indexTime = NA,
         ..treatmentATime = NA,
         ..treatmentBTime = NA,
@@ -422,6 +457,8 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         ..treatmentAPositive = NA,
         ..treatmentBPositive = NA,
         ..outcomePositive = NA,
+        ..treatmentALabel = NA,
+        ..treatmentBLabel = NA,
         ..outcomeSource = NA,
         ..competingHandling = NA,
         ..timeMode = NA,
@@ -431,6 +468,7 @@ landmarkTrialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         ..window2 = NA,
         ..unknownTreatment = NA,
         ..unknownEvent = NA,
+        ..unknownDischarge = NA,
         ..runBothStrata = NA,
         ..primaryStratum = NA,
         ..primaryWindow = NA,
@@ -476,7 +514,7 @@ landmarkTrialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 options=options,
                 name="summary",
                 title="Analysis Summary",
-                rows=12,
+                rows=14,
                 columns=list(
                     list(
                         `name`="measure", 
@@ -665,7 +703,7 @@ landmarkTrialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "trialemulationj",
                 name = "landmarkTrial",
-                version = c(1,1,0),
+                version = c(1,1,1),
                 options = options,
                 results = landmarkTrialResults$new(options=options),
                 data = data,
@@ -694,6 +732,7 @@ landmarkTrialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param failureEvent2 .
 #' @param competingEvent .
 #' @param cluster .
+#' @param missingCluster .
 #' @param indexTime .
 #' @param treatmentATime .
 #' @param treatmentBTime .
@@ -707,6 +746,8 @@ landmarkTrialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param treatmentAPositive .
 #' @param treatmentBPositive .
 #' @param outcomePositive .
+#' @param treatmentALabel .
+#' @param treatmentBLabel .
 #' @param outcomeSource .
 #' @param competingHandling .
 #' @param timeMode .
@@ -716,6 +757,7 @@ landmarkTrialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param window2 .
 #' @param unknownTreatment .
 #' @param unknownEvent .
+#' @param unknownDischarge .
 #' @param runBothStrata .
 #' @param primaryStratum .
 #' @param primaryWindow .
@@ -765,6 +807,7 @@ landmarkTrial <- function(
     failureEvent2 = NULL,
     competingEvent = NULL,
     cluster = NULL,
+    missingCluster = "stop",
     indexTime = NULL,
     treatmentATime = NULL,
     treatmentBTime = NULL,
@@ -778,6 +821,8 @@ landmarkTrial <- function(
     treatmentAPositive = "",
     treatmentBPositive = "",
     outcomePositive = "",
+    treatmentALabel = "Treatment A",
+    treatmentBLabel = "Treatment B",
     outcomeSource = "recorded",
     competingHandling = "noFailure",
     timeMode = "elapsed",
@@ -787,6 +832,7 @@ landmarkTrial <- function(
     window2 = 48,
     unknownTreatment = "exclude",
     unknownEvent = "exclude",
+    unknownDischarge = "exclude",
     runBothStrata = TRUE,
     primaryStratum = "present",
     primaryWindow = "first",
@@ -856,6 +902,7 @@ landmarkTrial <- function(
         failureEvent2 = failureEvent2,
         competingEvent = competingEvent,
         cluster = cluster,
+        missingCluster = missingCluster,
         indexTime = indexTime,
         treatmentATime = treatmentATime,
         treatmentBTime = treatmentBTime,
@@ -869,6 +916,8 @@ landmarkTrial <- function(
         treatmentAPositive = treatmentAPositive,
         treatmentBPositive = treatmentBPositive,
         outcomePositive = outcomePositive,
+        treatmentALabel = treatmentALabel,
+        treatmentBLabel = treatmentBLabel,
         outcomeSource = outcomeSource,
         competingHandling = competingHandling,
         timeMode = timeMode,
@@ -878,6 +927,7 @@ landmarkTrial <- function(
         window2 = window2,
         unknownTreatment = unknownTreatment,
         unknownEvent = unknownEvent,
+        unknownDischarge = unknownDischarge,
         runBothStrata = runBothStrata,
         primaryStratum = primaryStratum,
         primaryWindow = primaryWindow,

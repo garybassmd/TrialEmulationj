@@ -2,8 +2,8 @@
 name: protocol
 title: Target-Trial Protocol Builder
 menuGroup: Causal Inference
-menuTitle: Target-Trial Protocol Builder
-version: '1.1.0'
+menuTitle: 1. Target-Trial Protocol
+version: '1.1.1'
 jas: '1.2'
 
 description:

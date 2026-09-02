@@ -8,8 +8,35 @@
     x
 }
 
-.te_as_binary <- function(x, label, positive = "", allowMissing = FALSE) {
+.te_binary_label_roles <- function(levels) {
+    if (length(levels) != 2L)
+        return(NULL)
+    normal <- tolower(gsub("[^[:alnum:]]+", " ", levels))
+    normal <- trimws(normal)
+    zeroWords <- c(
+        "0", "no", "false", "control", "untreated", "unexposed", "none",
+        "alive", "alive at discharge", "successful", "successful nom",
+        "no event", "no treatment", "absence", "absent"
+    )
+    oneWords <- c("1", "yes", "true", "treated", "exposed", "event", "failure", "died", "death")
+    zeroHit <- which(normal %in% zeroWords)
+    oneHit <- which(normal %in% oneWords)
+    if (length(zeroHit) == 1L)
+        return(list(zero = levels[[zeroHit]], one = setdiff(levels, levels[[zeroHit]])[[1]]))
+    if (length(oneHit) == 1L)
+        return(list(one = levels[[oneHit]], zero = setdiff(levels, levels[[oneHit]])[[1]]))
+    NULL
+}
+
+.te_as_binary <- function(x, label, positive = "", allowMissing = FALSE, mask = NULL) {
     x <- .te_trim(x)
+    if (!is.null(mask)) {
+        if (length(mask) != length(x))
+            stop("Internal error: the eligibility mask for ", label, " has the wrong length.")
+        mask <- as.logical(mask)
+        mask[is.na(mask)] <- FALSE
+        x[!mask] <- NA
+    }
     missing <- is.na(x)
     if (any(missing) && !allowMissing)
         stop(label, " contains missing values.")
@@ -39,21 +66,10 @@
         one <- levels[[hit]]
         zero <- setdiff(levels, one)[[1]]
     } else {
-        normal <- tolower(gsub("[^[:alnum:]]+", " ", levels))
-        zeroWords <- c(
-            "0", "no", "false", "control", "untreated", "unexposed", "none",
-            "alive", "alive at discharge", "successful", "successful nom",
-            "no event", "no treatment", "absence", "absent"
-        )
-        zeroHit <- which(trimws(normal) %in% zeroWords)
-        oneWords <- c("1", "yes", "true", "treated", "exposed", "event", "failure", "died", "death")
-        oneHit <- which(trimws(normal) %in% oneWords)
-        if (length(zeroHit) == 1L) {
-            zero <- levels[[zeroHit]]
-            one <- setdiff(levels, zero)[[1]]
-        } else if (length(oneHit) == 1L) {
-            one <- levels[[oneHit]]
-            zero <- setdiff(levels, one)[[1]]
+        roles <- .te_binary_label_roles(levels)
+        if (!is.null(roles)) {
+            zero <- roles$zero
+            one <- roles$one
         } else {
             zero <- sort(levels)[[1]]
             one <- sort(levels)[[2]]
@@ -66,17 +82,25 @@
     list(values = values, zero = zero, one = one)
 }
 
-.te_recode_absence <- function(data, variables) {
+.te_recode_absence <- function(data, variables, mask = NULL) {
     variables <- intersect(unique(variables), names(data))
     audit <- data.frame(variable = character(), recoded = integer(), rule = character(), stringsAsFactors = FALSE)
     if (length(variables) == 0L)
         return(list(data = data, audit = audit))
+    if (is.null(mask)) {
+        mask <- rep(TRUE, nrow(data))
+    } else {
+        if (length(mask) != nrow(data))
+            stop("Internal error: the absence-recoding mask has the wrong length.")
+        mask <- as.logical(mask)
+        mask[is.na(mask)] <- FALSE
+    }
 
     for (name in variables) {
         x <- data[[name]]
-        blank <- is.na(x)
+        blank <- is.na(x) & mask
         if (is.character(x) || is.factor(x))
-            blank <- blank | trimws(as.character(x)) == ""
+            blank <- blank | (mask & trimws(as.character(x)) == "")
         count <- sum(blank)
         if (count > 0L) {
             if (is.logical(x)) {
@@ -87,9 +111,12 @@
                 rule <- "Missing -> 0"
             } else {
                 x <- as.character(x)
-                x[blank] <- "No"
+                observed <- unique(x[mask & !blank & !is.na(x)])
+                roles <- .te_binary_label_roles(observed)
+                replacement <- if (is.null(roles)) "No" else roles$zero
+                x[blank] <- replacement
                 x <- factor(x)
-                rule <- "Missing/blank -> No"
+                rule <- paste0("Missing/blank -> ", replacement)
             }
             data[[name]] <- x
         } else {

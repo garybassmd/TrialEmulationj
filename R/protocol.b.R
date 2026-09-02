@@ -96,7 +96,7 @@ protocolClass <- R6::R6Class(
             fingerprint <- .te_specification_fingerprint(record)
             self$results$report$setContent(private$.reportText(values, fingerprint))
             self$results$fingerprint$setContent(paste0(
-                "Module: TrialEmulationj 1.1.0\n",
+                "Module: TrialEmulationj 1.1.1\n",
                 "Specification SHA-256: ", fingerprint, "\n",
                 "Short fingerprint: ", substr(fingerprint, 1, 16), "\n",
                 "The fingerprint identifies the entered protocol text and choices; it does not hash the dataset."

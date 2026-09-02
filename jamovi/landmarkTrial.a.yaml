@@ -2,8 +2,8 @@
 name: landmarkTrial
 title: Landmark Target-Trial Analysis
 menuGroup: Causal Inference
-menuTitle: Landmark Target Trial
-version: '1.1.0'
+menuTitle: 3. Landmark Trial (24/48 h)
+version: '1.1.1'
 jas: '1.2'
 
 description:
@@ -25,6 +25,13 @@ options:
     - { name: failureEvent2, title: Failure component 2 (optional), type: Variable, default: null }
     - { name: competingEvent, title: Competing event (optional), type: Variable, default: null }
     - { name: cluster, title: Cluster ID (optional), type: Variable, default: null }
+    - name: missingCluster
+      title: Missing cluster IDs
+      type: List
+      options:
+        - { title: Stop and report, name: stop }
+        - { title: Assign one shared Unknown cluster, name: unknown }
+      default: stop
     - { name: indexTime, title: Index/start date-time, type: Variable, default: null }
     - { name: treatmentATime, title: Time to treatment A (optional), type: Variable, default: null }
     - { name: treatmentBTime, title: Time to treatment B (optional), type: Variable, default: null }
@@ -44,6 +51,8 @@ options:
     - { name: treatmentAPositive, title: Treatment A positive level, type: String, default: '' }
     - { name: treatmentBPositive, title: Treatment B positive level, type: String, default: '' }
     - { name: outcomePositive, title: Failure level, type: String, default: '' }
+    - { name: treatmentALabel, title: Treatment A display label, type: String, default: 'Treatment A' }
+    - { name: treatmentBLabel, title: Treatment B display label, type: String, default: 'Treatment B' }
     - name: outcomeSource
       title: Outcome construction
       type: List
@@ -89,6 +98,13 @@ options:
       options:
         - { title: Exclude from that landmark cohort, name: exclude }
         - { title: Retain using recorded outcome, name: retain }
+      default: exclude
+    - name: unknownDischarge
+      title: Missing or invalid discharge time
+      type: List
+      options:
+        - { title: Exclude because landmark observation cannot be verified, name: exclude }
+        - { title: Retain and flag for sensitivity analysis, name: retain }
       default: exclude
     - { name: runBothStrata, title: Analyze treatment A present and absent strata, type: Bool, default: true }
     - name: primaryStratum

@@ -99,6 +99,33 @@ test_that("Firth models return finite AIPW estimates under complete separation",
     expect_true(all(grepl("Firth", result$summary$asDF$value[result$summary$asDF$measure %in% c("Propensity model", "Outcome model")])))
 })
 
+test_that("blank-as-absence reuses an existing labelled negative level", {
+    set.seed(2203)
+    n <- 180L
+    data <- data.frame(
+        treatment = rep(c("No", "Yes"), each = n / 2L),
+        death = rep(c("alive at discharge", "alive at discharge", "died"), length.out = n),
+        age = stats::rnorm(n, 65, 11),
+        stringsAsFactors = FALSE
+    )
+    data$death[seq(9, n, by = 18)] <- NA_character_
+    result <- trialemulationj::aipw(
+        data = data,
+        treatment = "treatment",
+        outcome = "death",
+        outcomeCovs = "age",
+        propensityCovs = "age",
+        absenceVars = "death",
+        sensitivityGrid = FALSE,
+        showOverlapPlot = FALSE,
+        showBalancePlot = FALSE,
+        showEffectPlot = FALSE
+    )
+    outcomeCoding <- result$summary$asDF$value[result$summary$asDF$measure == "Outcome coding"]
+    expect_match(outcomeCoding, "alive at discharge = 0")
+    expect_equal(result$missingAudit$asDF$recoded[result$missingAudit$asDF$variable == "death"], 10L)
+})
+
 test_that("landmark workflow constructs 24- and 48-hour clustered analyses", {
     data <- make_landmark_data()
     result <- trialemulationj::landmarkTrial(
@@ -117,6 +144,8 @@ test_that("landmark workflow constructs 24- and 48-hour clustered analyses", {
         treatmentAPositive = "Yes",
         treatmentBPositive = "Yes",
         outcomePositive = "Yes",
+        treatmentALabel = "NGT",
+        treatmentBLabel = "WSEC",
         showFlowPlot = FALSE,
         showBalancePlot = FALSE,
         showEffectPlot = FALSE
@@ -126,4 +155,77 @@ test_that("landmark workflow constructs 24- and 48-hour clustered analyses", {
     expect_equal(nrow(result$effects$asDF), 8L)
     expect_true(all(is.finite(result$effects$asDF$estimate)))
     expect_true(sum(result$timeline$asDF$n) >= 3L)
+    expect_true(all(grepl("^NGT ", result$effects$asDF$stratum)))
+    expect_true(all(grepl("^(NGT|WSEC) ", c(result$strategies$asDF$treatmentA, result$strategies$asDF$treatmentB))))
+})
+
+test_that("landmark workflow validates coding after eligibility and audits observation time", {
+    nEligible <- 160L
+    nIneligible <- 40L
+    data <- data.frame(
+        eligible = c(rep("Yes", nEligible), rep("No", nIneligible)),
+        treatmentA = c(rep(c("No", "Yes"), each = nEligible / 2L), rep("Not assessed", nIneligible)),
+        treatmentB = c(rep(c("No", "Yes"), length.out = nEligible), rep("Not applicable", nIneligible)),
+        outcome = c(rep(c("alive at discharge", "alive at discharge", "died", "alive at discharge"), length.out = nEligible), rep("Direct surgery", nIneligible)),
+        dischargeTime = c(rep(80, nEligible), rep(NA_real_, nIneligible)),
+        age = c(seq(45, 84, length.out = nEligible), rep(60, nIneligible)),
+        site = c(rep(sprintf("site%02d", 1:20), length.out = nEligible), rep(NA_character_, nIneligible)),
+        stringsAsFactors = FALSE
+    )
+    data$site[[1]] <- NA_character_
+    data$outcome[[1]] <- NA_character_
+    data$dischargeTime[[1]] <- NA_real_
+    data$dischargeTime[[2]] <- -1
+    data$dischargeTime[[3]] <- 12
+
+    excluded <- trialemulationj::landmarkTrial(
+        data = data,
+        eligibility = "eligible",
+        treatmentA = "treatmentA",
+        treatmentB = "treatmentB",
+        outcome = "outcome",
+        cluster = "site",
+        dischargeTime = "dischargeTime",
+        covariates = "age",
+        eligibilityPositive = "Yes",
+        treatmentAPositive = "Yes",
+        treatmentBPositive = "Yes",
+        outcomePositive = "died",
+        absenceVars = "outcome",
+        missingCluster = "unknown",
+        unknownDischarge = "exclude",
+        runSecondWindow = FALSE,
+        showFlowPlot = FALSE,
+        showBalancePlot = FALSE,
+        showEffectPlot = FALSE
+    )
+    expect_equal(excluded$flow$asDF$n[excluded$flow$asDF$step == "Meet baseline eligibility"], nEligible)
+    expect_equal(excluded$flow$asDF$n[excluded$flow$asDF$step == "Remain observed and event-free at landmark"], nEligible - 3L)
+    expect_equal(excluded$timeline$asDF$n[excluded$timeline$asDF$issue == "Missing/blank cluster ID"], 1L)
+    expect_equal(excluded$timeline$asDF$n[excluded$timeline$asDF$issue == "Missing/unparseable discharge time"], 1L)
+    expect_equal(excluded$timeline$asDF$n[excluded$timeline$asDF$issue == "Negative discharge time"], 1L)
+    expect_equal(excluded$timeline$asDF$n[excluded$timeline$asDF$issue == "Missing/blank value explicitly recoded as absence"], 1L)
+
+    retained <- trialemulationj::landmarkTrial(
+        data = data,
+        eligibility = "eligible",
+        treatmentA = "treatmentA",
+        treatmentB = "treatmentB",
+        outcome = "outcome",
+        cluster = "site",
+        dischargeTime = "dischargeTime",
+        covariates = "age",
+        eligibilityPositive = "Yes",
+        treatmentAPositive = "Yes",
+        treatmentBPositive = "Yes",
+        outcomePositive = "died",
+        absenceVars = "outcome",
+        missingCluster = "unknown",
+        unknownDischarge = "retain",
+        runSecondWindow = FALSE,
+        showFlowPlot = FALSE,
+        showBalancePlot = FALSE,
+        showEffectPlot = FALSE
+    )
+    expect_equal(retained$flow$asDF$n[retained$flow$asDF$step == "Remain observed and event-free at landmark"], nEligible - 1L)
 })

@@ -183,7 +183,7 @@ aipwClass <- R6::R6Class(
             fitted$sensitivity <- private$.sensitivityGrid(analysisData, prepared, fitArgs)
             fitted$fingerprint <- .te_specification_fingerprint(list(
                 analysis = "aipw",
-                version = "1.1.0",
+                version = "1.1.1",
                 treatment = prepared$originalTreatment,
                 outcome = prepared$originalOutcome,
                 cluster = prepared$originalCluster,

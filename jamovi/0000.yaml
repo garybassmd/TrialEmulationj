@@ -1,7 +1,7 @@
 ---
 title: Causal Trial Emulation
 name: trialemulationj
-version: 1.1.0
+version: 1.1.1
 jms: '1.0'
 authors:
   - Gary Bass
@@ -16,7 +16,7 @@ analyses:
     name: protocol
     ns: trialemulationj
     menuGroup: Causal Inference
-    menuTitle: Target-Trial Protocol Builder
+    menuTitle: 1. Target-Trial Protocol
     description: |
       Defines the target trial before analysis. Produces a structured protocol,
       readiness checks, and a reproducible specification fingerprint aligned
@@ -26,7 +26,7 @@ analyses:
     name: causalDAG
     ns: trialemulationj
     menuGroup: Causal Inference
-    menuTitle: Causal DAG
+    menuTitle: 2. Causal DAG
     description: |
       Validates a prespecified causal directed acyclic graph, identifies
       minimally sufficient adjustment sets, checks a selected model set, and
@@ -37,7 +37,7 @@ analyses:
     name: landmarkTrial
     ns: trialemulationj
     menuGroup: Causal Inference
-    menuTitle: Landmark Target Trial
+    menuTitle: 3. Landmark Trial (24/48 h)
     description: |
       Constructs aligned landmark cohorts for two treatment-decision windows,
       classifies two binary treatment components into four strategies, and
@@ -48,7 +48,7 @@ analyses:
     name: targetTrial
     ns: trialemulationj
     menuGroup: Causal Inference
-    menuTitle: Target Trial Emulation
+    menuTitle: 4. Sequential Target Trial
     description: |
       Emulates a sequence of target trials from longitudinal person-period
       observational data using the TrialEmulation R package. The analysis
@@ -59,7 +59,7 @@ analyses:
     name: cloneCensor
     ns: trialemulationj
     menuGroup: Causal Inference
-    menuTitle: Clone-Censor Weighting
+    menuTitle: 5. Clone-Censor Weighting
     description: |
       Emulates sustained exposure strategies by cloning each person,
       artificially censoring clones at strategy deviation, and weighting for
@@ -69,7 +69,7 @@ analyses:
     name: aipw
     ns: trialemulationj
     menuGroup: Causal Inference
-    menuTitle: AIPW / IPTW (Point Outcomes)
+    menuTitle: 6. AIPW / Doubly Robust
     description: |
       Estimates marginal treatment effects using augmented inverse probability
       weighting (AIPW) and Hajek inverse probability weighting (IPTW). Supports
@@ -81,7 +81,7 @@ analyses:
     name: drSurvival
     ns: trialemulationj
     menuGroup: Causal Inference
-    menuTitle: Doubly Robust Survival
+    menuTitle: 7. Doubly Robust Survival
     description: |
       Estimates a doubly robust treatment effect for one-row-per-person
       survival data. The primary estimand is the ratio of restricted mean time

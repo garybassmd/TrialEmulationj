@@ -7,7 +7,7 @@ items:
     - name: summary
       title: Analysis Summary
       type: Table
-      rows: 12
+      rows: 14
       columns:
         - { name: measure, title: Measure, type: text }
         - { name: value, title: Value, type: text }

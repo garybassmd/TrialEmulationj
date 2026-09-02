@@ -2,8 +2,8 @@
 name: targetTrial
 title: Target Trial Emulation
 menuGroup: Causal Inference
-menuTitle: Target Trial Emulation
-version: '1.0.0'
+menuTitle: 4. Sequential Target Trial
+version: '1.1.1'
 jas: '1.2'
 
 description:

@@ -2,8 +2,8 @@
 name: causalDAG
 title: Causal DAG and Adjustment Sets
 menuGroup: Causal Inference
-menuTitle: Causal DAG
-version: '1.1.0'
+menuTitle: 2. Causal DAG
+version: '1.1.1'
 jas: '1.2'
 
 description:
